@@ -1,3 +1,4 @@
+/* ===== Estilo general ===== */
 body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
@@ -19,6 +20,7 @@ main {
   text-align: center;
 }
 
+/* ===== Formulario ===== */
 #busqueda input {
   padding: 10px;
   width: 60%;
@@ -38,11 +40,13 @@ main {
   margin-left: 10px;
 }
 
+/* ===== Resultados ===== */
 #resultado {
   margin: 30px 0;
   font-size: 18px;
 }
 
+/* ===== Semáforo ===== */
 #semaforo {
   display: flex;
   justify-content: center;
@@ -58,11 +62,70 @@ main {
   transition: background 0.3s;
 }
 
-#husky {
-  position: fixed;
-  width: 150px;
-  top: 50px;
-  left: 50px;
+/* ===== Perro animado ===== */
+.dog {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 120px;
+  height: 80px;
   pointer-events: none;
-  transition: transform 0.1s;
+  z-index: 10;
+}
+
+.body {
+  position: absolute;
+  width: 100px;
+  height: 50px;
+  background: #ccc;
+  border-radius: 25px;
+  top: 30px;
+  left: 10px;
+}
+
+.head {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: #ccc;
+  border-radius: 50%;
+  top: 0;
+  left: 0;
+  transform-origin: center;
+  animation: nod 2s infinite;
+}
+
+.ear {
+  position: absolute;
+  width: 10px;
+  height: 20px;
+  background: #999;
+  border-radius: 50%;
+  top: 5px;
+}
+
+.ear.left { left: -5px; transform: rotate(-20deg); }
+.ear.right { left: 25px; transform: rotate(20deg); }
+
+.tail {
+  position: absolute;
+  width: 8px;
+  height: 30px;
+  background: #999;
+  border-radius: 20px;
+  top: 30px;
+  left: 95px;
+  transform-origin: top center;
+  animation: wag 0.5s infinite alternate;
+}
+
+/* ===== Animaciones ===== */
+@keyframes wag {
+  0% { transform: rotate(-20deg); }
+  100% { transform: rotate(20deg); }
+}
+
+@keyframes nod {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(10deg); }
 }
