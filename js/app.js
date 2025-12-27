@@ -16,39 +16,47 @@ function buscar() {
   };
 
   const resultado = datosSimulados[dni];
-  const contenedor = document.getElementById('resultado');
-  contenedor.innerHTML = "";
+  const tbody = document.querySelector('#tablaResultado tbody');
+  tbody.innerHTML = ""; // Limpiar resultados anteriores
 
   if (resultado) {
-    const fila = document.createElement('div');
-    fila.classList.add('fila');
+    const tr = document.createElement('tr');
 
     // Persona
-    const divPersona = document.createElement('div');
-    divPersona.textContent = resultado.nombre;
+    const tdPersona = document.createElement('td');
+    tdPersona.textContent = resultado.nombre;
 
     // DNI
-    const divDni = document.createElement('div');
-    divDni.textContent = dni;
+    const tdDni = document.createElement('td');
+    tdDni.textContent = dni;
 
     // Empresa
-    const divEmpresa = document.createElement('div');
-    divEmpresa.textContent = resultado.empresa;
+    const tdEmpresa = document.createElement('td');
+    tdEmpresa.textContent = resultado.empresa;
 
     // Semáforo
+    const tdSemaforo = document.createElement('td');
     const divSemaforo = document.createElement('div');
     divSemaforo.classList.add('semaforo');
     actualizarSemaforoColor(divSemaforo, resultado.semaforo);
+    tdSemaforo.appendChild(divSemaforo);
 
-    // Agregar columnas a fila
-    fila.appendChild(divPersona);
-    fila.appendChild(divDni);
-    fila.appendChild(divEmpresa);
-    fila.appendChild(divSemaforo);
+    // Agregar columnas a la fila
+    tr.appendChild(tdPersona);
+    tr.appendChild(tdDni);
+    tr.appendChild(tdEmpresa);
+    tr.appendChild(tdSemaforo);
 
-    // Agregar fila al contenedor
-    contenedor.appendChild(fila);
+    // Agregar fila al tbody
+    tbody.appendChild(tr);
   } else {
-    contenedor.textContent = "Persona no encontrada";
+    // Persona no encontrada
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    td.textContent = "Persona no encontrada";
+    td.style.color = "red";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
   }
 }
