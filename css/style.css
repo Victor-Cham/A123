@@ -62,59 +62,62 @@ main {
   transition: background 0.3s;
 }
 
-/* ===== Perro animado ===== */
-.dog {
-  position: absolute;
+/* ===== Husky ===== */
+.husky {
+  position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 120px;
-  height: 80px;
-  pointer-events: none;
+  width: 150px;
   z-index: 10;
+  pointer-events: none;
 }
 
-.body {
-  position: absolute;
-  width: 100px;
+.husky .body {
+  position: relative;
+}
+
+.husky .head {
+  position: relative;
+  width: 50px;
   height: 50px;
   background: #ccc;
-  border-radius: 25px;
-  top: 30px;
-  left: 10px;
-}
-
-.head {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: #ccc;
   border-radius: 50%;
-  top: 0;
-  left: 0;
   transform-origin: center;
   animation: nod 2s infinite;
 }
 
-.ear {
+.husky .ear {
   position: absolute;
-  width: 10px;
-  height: 20px;
+  width: 15px;
+  height: 25px;
   background: #999;
   border-radius: 50%;
   top: 5px;
 }
 
-.ear.left { left: -5px; transform: rotate(-20deg); }
-.ear.right { left: 25px; transform: rotate(20deg); }
+.husky .ear.left { left: -5px; transform: rotate(-20deg); }
+.husky .ear.right { left: 30px; transform: rotate(20deg); }
 
-.tail {
+.husky .face .eye {
   position: absolute;
-  width: 8px;
-  height: 30px;
+  width: 10px;
+  height: 10px;
+  background: black;
+  border-radius: 50%;
+  top: 15px;
+}
+
+.husky .face .eye.left { left: 10px; }
+.husky .face .eye.right { right: 10px; }
+
+.husky .tail {
+  position: absolute;
+  width: 15px;
+  height: 50px;
   background: #999;
   border-radius: 20px;
   top: 30px;
-  left: 95px;
+  left: 120px;
   transform-origin: top center;
   animation: wag 0.5s infinite alternate;
 }
@@ -129,3 +132,4 @@ main {
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(10deg); }
 }
+
