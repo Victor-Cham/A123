@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta de Personas</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Consulta de Personas</h1>
+  </header>
+
+  <main>
+    <section id="busqueda">
+      <input type="text" id="dni" placeholder="Ingrese DNI o nombre">
+      <button onclick="buscar()">Buscar</button>
+    </section>
+
+    <section id="resultado">
+      <!-- Resultado dinámico -->
+    </section>
+
+    <section id="semaforo">
+      <div id="verde" class="luz"></div>
+      <div id="amarillo" class="luz"></div>
+      <div id="rojo" class="luz"></div>
+    </section>
+  </main>
+
+  <img id="husky" src="img/husky-head.png" alt="Husky">
+
+  <script src="js/app.js"></script>
+</body>
+</html>
