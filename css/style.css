@@ -4,7 +4,6 @@ body {
   margin: 0;
   padding: 0;
   background: #f0f2f5;
-  overflow-x: hidden;
 }
 
 header {
@@ -40,96 +39,27 @@ main {
   margin-left: 10px;
 }
 
-/* ===== Resultados ===== */
-#resultado {
-  margin: 30px 0;
-  font-size: 18px;
-}
-
-/* ===== Semáforo ===== */
-#semaforo {
+/* ===== Resultados estilo fila ===== */
+#resultado .fila {
   display: flex;
-  justify-content: center;
-  gap: 15px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   margin-top: 20px;
+  font-size: 16px;
+  background: white;
 }
 
-.luz {
-  width: 50px;
-  height: 50px;
+#resultado .fila div {
+  flex: 1;
+  text-align: center;
+}
+
+#resultado .fila .semaforo {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: gray;
-  transition: background 0.3s;
 }
-
-/* ===== Husky ===== */
-.husky {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 150px;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.husky .body {
-  position: relative;
-}
-
-.husky .head {
-  position: relative;
-  width: 50px;
-  height: 50px;
-  background: #ccc;
-  border-radius: 50%;
-  transform-origin: center;
-  animation: nod 2s infinite;
-}
-
-.husky .ear {
-  position: absolute;
-  width: 15px;
-  height: 25px;
-  background: #999;
-  border-radius: 50%;
-  top: 5px;
-}
-
-.husky .ear.left { left: -5px; transform: rotate(-20deg); }
-.husky .ear.right { left: 30px; transform: rotate(20deg); }
-
-.husky .face .eye {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: black;
-  border-radius: 50%;
-  top: 15px;
-}
-
-.husky .face .eye.left { left: 10px; }
-.husky .face .eye.right { right: 10px; }
-
-.husky .tail {
-  position: absolute;
-  width: 15px;
-  height: 50px;
-  background: #999;
-  border-radius: 20px;
-  top: 30px;
-  left: 120px;
-  transform-origin: top center;
-  animation: wag 0.5s infinite alternate;
-}
-
-/* ===== Animaciones ===== */
-@keyframes wag {
-  0% { transform: rotate(-20deg); }
-  100% { transform: rotate(20deg); }
-}
-
-@keyframes nod {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(10deg); }
-}
-
