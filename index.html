@@ -1,22 +1,62 @@
-<!-- Modal de detalle -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta de Persona</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <h1>Consulta de Persona</h1>
+</header>
+
+<main>
+  <!-- Buscador -->
+  <section id="busqueda">
+    <input type="text" id="dni" placeholder="Ingrese DNI, pasaporte o nombre">
+    <button id="btnBuscar">Buscar</button>
+  </section>
+
+  <!-- Tabla -->
+  <section id="resultado">
+    <table id="tablaResultado">
+      <thead>
+        <tr>
+          <th>Persona</th>
+          <th>Documento</th>
+          <th>Empresa</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<!-- Modal seguridad -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h3>Acceso restringido</h3>
+    <p>Ingrese el código de seguridad</p>
+    <input type="password" id="codigoAcceso" placeholder="Código">
+    <div class="modal-buttons">
+      <button onclick="validarCodigo()">Aceptar</button>
+      <button onclick="cerrarModal()">Cancelar</button>
+    </div>
+    <p id="mensajeError"></p>
+  </div>
+</div>
+
+<!-- Modal detalle -->
 <div id="modalDetalle" class="modal">
   <div class="modal-content detalle">
     <h3>Detalle de la Persona</h3>
 
-    <div class="detalle-item">
-      <strong>Persona:</strong>
-      <span id="detNombre"></span>
-    </div>
-
-    <div class="detalle-item">
-      <strong>Documento:</strong>
-      <span id="detDocumento"></span>
-    </div>
-
-    <div class="detalle-item">
-      <strong>Empresa:</strong>
-      <span id="detEmpresa"></span>
-    </div>
+    <div class="detalle-item"><strong>Persona:</strong> <span id="detNombre"></span></div>
+    <div class="detalle-item"><strong>Documento:</strong> <span id="detDocumento"></span></div>
+    <div class="detalle-item"><strong>Empresa:</strong> <span id="detEmpresa"></span></div>
 
     <div class="detalle-item estado">
       <strong>Estado:</strong>
@@ -34,5 +74,10 @@
     </div>
   </div>
 </div>
+
+<script src="app.js"></script>
+</body>
+</html>
+
 
 
