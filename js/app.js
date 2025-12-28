@@ -1,7 +1,8 @@
 /* ===============================
    CONFIG
    =============================== */
-const API_URL = "https://script.google.com/macros/s/AKfycbxAiXh-IJnOHkRQNbvcyfDKzV9ZB3QgEB-0-wEugIuDImXDa6CCR0ppPa9h6n6PMiWo/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx8Reu89EN_O6f7NfPlqCRQifClHG74kSCAEJiZKetpd19B09OO9qmey680-26mH5ne/exec";
+
 const CLAVE_SEGURIDAD = "A123";
 
 let personaActual = null;
