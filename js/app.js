@@ -103,10 +103,28 @@ function mostrarDetalle() {
   document.getElementById("detNombre").textContent = p.nombre;
   document.getElementById("detDocumento").textContent = p.documento;
   document.getElementById("detEmpresa").textContent = p.empresa;
-  document.getElementById("detEstadoTexto").textContent = personaActual.estado;
 
+  // Determinar la descripción más grave
+  let nivelMax = 0;
+  let descripcionMax = "VERDE"; // default si no hay detalle
+
+  if (personaActual.detalles && personaActual.detalles.length > 0) {
+    personaActual.detalles.forEach(det => {
+      if (det.nivel > nivelMax) {
+        nivelMax = det.nivel;
+        descripcionMax = det.tipo_descripcion; // mostramos la descripción
+      }
+    });
+  }
+
+  // Mostrar descripción en el modal
+  document.getElementById("detEstadoTexto").textContent = descripcionMax;
+
+  // Colorear el semáforo según el nivel máximo
   document.getElementById("detEstadoSemaforo").style.background =
-    colorSemaforo(personaActual.estado);
+    nivelMax === 2 ? "red" :
+    nivelMax === 1 ? "orange" :
+    "green";
 
   // Detalles
   const cont = document.getElementById("detDescripcion");
@@ -119,12 +137,10 @@ function mostrarDetalle() {
       .join("<br>");
   }
 
+  // Abrir modal de detalle
   document.getElementById("modalDetalle").style.display = "flex";
 }
 
-function cerrarModalDetalle() {
-  document.getElementById("modalDetalle").style.display = "none";
-}
 
 /* ===============================
    UTIL
