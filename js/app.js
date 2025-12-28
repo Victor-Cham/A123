@@ -1,8 +1,8 @@
-const CLAVE_SEGURIDAD = "A123"; // Cambiar luego o mover a backend
-let detallePendiente = null;
+const CLAVE_SEGURIDAD = "A123";
+let personaActual = null;
 
-// Simulación de datos
-const datosSimulados = {
+// Datos simulados (luego Google Sheets)
+const datos = {
   "12345678": {
     nombre: "Juan Perez",
     empresa: "Empresa X",
@@ -17,10 +17,7 @@ const datosSimulados = {
   }
 };
 
-// Botón buscar
 document.getElementById("btnBuscar").addEventListener("click", buscar);
-
-// Buscar con ENTER
 document.getElementById("dni").addEventListener("keydown", e => {
   if (e.key === "Enter") buscar();
 });
@@ -30,31 +27,25 @@ function buscar() {
   const tbody = document.querySelector("#tablaResultado tbody");
   tbody.innerHTML = "";
 
-  const persona = datosSimulados[dni];
+  personaActual = datos[dni];
 
-  if (!persona) {
+  if (!personaActual) {
     tbody.innerHTML = `<tr><td colspan="4">Persona no encontrada</td></tr>`;
     return;
   }
 
-  // Guardamos el detalle SOLO después de encontrar a la persona
-  detallePendiente = persona.detalle;
-
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${persona.nombre}</td>
-    <td>${dni}</td>
-    <td>${persona.empresa}</td>
-    <td>
-      <div class="semaforo"
-           style="background:${colorSemaforo(persona.estado)}"
-           title="Ver detalle"
-           onclick="abrirModal()">
-      </div>
-    </td>
+  tbody.innerHTML = `
+    <tr>
+      <td>${personaActual.nombre}</td>
+      <td>${dni}</td>
+      <td>${personaActual.empresa}</td>
+      <td>
+        <span class="semaforo"
+              style="background:${colorSemaforo(personaActual.estado)}"
+              onclick="abrirModal()"></span>
+      </td>
+    </tr>
   `;
-
-  tbody.appendChild(tr);
 }
 
 function colorSemaforo(estado) {
@@ -63,10 +54,8 @@ function colorSemaforo(estado) {
          estado === "ROJO" ? "red" : "gray";
 }
 
-/* ===== Seguridad ===== */
-
+/* Seguridad */
 function abrirModal() {
-  if (!detallePendiente) return; // Seguridad extra
   document.getElementById("codigoAcceso").value = "";
   document.getElementById("mensajeError").textContent = "";
   document.getElementById("modal").style.display = "flex";
@@ -74,10 +63,9 @@ function abrirModal() {
 
 function validarCodigo() {
   const codigo = document.getElementById("codigoAcceso").value;
-
   if (codigo === CLAVE_SEGURIDAD) {
-    alert("DETALLE:\n\n" + detallePendiente);
     cerrarModal();
+    mostrarDetalle();
   } else {
     document.getElementById("mensajeError").textContent = "Código incorrecto";
   }
@@ -85,4 +73,21 @@ function validarCodigo() {
 
 function cerrarModal() {
   document.getElementById("modal").style.display = "none";
+}
+
+/* Detalle */
+function mostrarDetalle() {
+  document.getElementById("detNombre").textContent = personaActual.nombre;
+  document.getElementById("detDocumento").textContent = document.getElementById("dni").value;
+  document.getElementById("detEmpresa").textContent = personaActual.empresa;
+  document.getElementById("detEstadoTexto").textContent = personaActual.estado;
+  document.getElementById("detDescripcion").textContent = personaActual.detalle;
+  document.getElementById("detEstadoSemaforo").style.background =
+    colorSemaforo(personaActual.estado);
+
+  document.getElementById("modalDetalle").style.display = "flex";
+}
+
+function cerrarModalDetalle() {
+  document.getElementById("modalDetalle").style.display = "none";
 }
