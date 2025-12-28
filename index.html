@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Consulta de Persona</title>
+  <title>Consulta y Registro de Persona</title>
   <link rel="stylesheet" href="css/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -13,13 +13,12 @@
 </header>
 
 <main>
-  <!-- Buscador -->
+  <!-- Sección Lectura -->
   <section id="busqueda">
     <input type="text" id="dni" placeholder="Ingrese DNI, pasaporte o carnet">
     <button id="btnBuscar">Buscar</button>
   </section>
 
-  <!-- Tabla -->
   <section id="resultado">
     <table id="tablaResultado">
       <thead>
@@ -33,9 +32,25 @@
       <tbody></tbody>
     </table>
   </section>
+
+  <!-- Sección Escritura (oculta) -->
+  <section id="registro" style="display:none; margin-top:50px; text-align:left;">
+    <h2>Registrar Persona / Detalle</h2>
+    <label>Nombre:</label><input type="text" id="regNombre"><br><br>
+    <label>Documento:</label><input type="text" id="regDocumento"><br><br>
+    <label>Empresa:</label><input type="text" id="regEmpresa"><br><br>
+    <label>Tipo de Registro:</label>
+    <select id="regTipo">
+      <option value="ANTECEDENTE">Antecedente</option>
+      <option value="RESTRICCION">Restricción</option>
+    </select><br><br>
+    <label>Detalle:</label><textarea id="regDetalle" rows="3"></textarea><br><br>
+    <button onclick="registrarPersona()">Registrar</button>
+    <p id="mensajeRegistro" style="color:green;"></p>
+  </section>
 </main>
 
-<!-- Modal seguridad -->
+<!-- Modal seguridad lectura (igual que antes) -->
 <div id="modal" class="modal">
   <div class="modal-content">
     <h3>Acceso restringido</h3>
@@ -49,32 +64,42 @@
   </div>
 </div>
 
-<!-- Modal detalle -->
+<!-- Modal detalle lectura (igual que antes) -->
 <div id="modalDetalle" class="modal">
   <div class="modal-content detalle">
     <h3>Detalle de la Persona</h3>
-
     <div class="detalle-item"><strong>Persona:</strong> <span id="detNombre"></span></div>
     <div class="detalle-item"><strong>Documento:</strong> <span id="detDocumento"></span></div>
     <div class="detalle-item"><strong>Empresa:</strong> <span id="detEmpresa"></span></div>
-
     <div class="detalle-item estado">
       <strong>Estado:</strong>
       <span id="detEstadoTexto"></span>
       <span id="detEstadoSemaforo" class="semaforo"></span>
     </div>
-
     <div class="detalle-descripcion">
       <strong>Detalle:</strong>
       <div id="detDescripcion" class="descripcion-scroll"></div>
     </div>
-
     <div class="modal-buttons">
       <button onclick="cerrarModalDetalle()">Cerrar</button>
     </div>
   </div>
 </div>
 
+<!-- Modal login para escritura -->
+<div id="modalLogin" class="modal">
+  <div class="modal-content">
+    <h3>Login para registro</h3>
+    <input type="text" id="loginUser" placeholder="Usuario"><br><br>
+    <input type="password" id="loginPass" placeholder="Contraseña"><br><br>
+    <div class="modal-buttons">
+      <button onclick="login()">Ingresar</button>
+    </div>
+    <p id="mensajeLogin" style="color:red;"></p>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 </body>
 </html>
+
