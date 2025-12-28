@@ -1,62 +1,86 @@
-// Función para actualizar color del semáforo
-function actualizarSemaforoColor(elemento, color) {
-  elemento.style.background = color === "VERDE" ? "green" :
-                             color === "AMARILLO" ? "orange" :
-                             color === "ROJO" ? "red" : "gray";
+const CLAVE_SEGURIDAD = "A123"; // 👉 cambia esta clave
+
+let detallePendiente = null;
+
+// Datos simulados
+const datosSimulados = {
+  "12345678": {
+    nombre: "Juan Perez",
+    empresa: "Empresa X",
+    semaforo: "VERDE",
+    detalle: "Sin restricciones ni antecedentes."
+  },
+  "87654321": {
+    nombre: "Maria Lopez",
+    empresa: "Empresa Y",
+    semaforo: "ROJO",
+    detalle: "Antecedente registrado en 2023."
+  }
+};
+
+// Buscar con botón
+document.getElementById("btnBuscar").addEventListener("click", buscar);
+
+// Buscar con ENTER
+document.getElementById("dni").addEventListener("keydown", e => {
+  if (e.key === "Enter") buscar();
+});
+
+function buscar() {
+  const dni = document.getElementById("dni").value.trim();
+  const tbody = document.querySelector("#tablaResultado tbody");
+  tbody.innerHTML = "";
+
+  const persona = datosSimulados[dni];
+
+  if (!persona) {
+    tbody.innerHTML = `<tr><td colspan="4">Persona no encontrada</td></tr>`;
+    return;
+  }
+
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td>${persona.nombre}</td>
+    <td>${dni}</td>
+    <td>${persona.empresa}</td>
+    <td>
+      <div class="semaforo" 
+           style="background:${colorSemaforo(persona.semaforo)}"
+           onclick="solicitarCodigo('${persona.detalle}')">
+      </div>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
 }
 
-// Función de búsqueda
-function buscar() {
-  const dni = document.getElementById('dni').value.trim();
+function colorSemaforo(estado) {
+  return estado === "VERDE" ? "green" :
+         estado === "AMARILLO" ? "orange" :
+         estado === "ROJO" ? "red" : "gray";
+}
 
-  // Datos de ejemplo
-  const datosSimulados = {
-    "12345678": { nombre: "Juan Perez", empresa: "Empresa X", semaforo: "VERDE" },
-    "87654321": { nombre: "Maria Lopez", empresa: "Empresa Y", semaforo: "ROJO" }
-  };
+/* ===== Seguridad / Modal ===== */
 
-  const resultado = datosSimulados[dni];
-  const tbody = document.querySelector('#tablaResultado tbody');
-  tbody.innerHTML = ""; // Limpiar resultados anteriores
+function solicitarCodigo(detalle) {
+  detallePendiente = detalle;
+  document.getElementById("codigoAcceso").value = "";
+  document.getElementById("mensajeError").textContent = "";
+  document.getElementById("modal").style.display = "flex";
+}
 
-  if (resultado) {
-    const tr = document.createElement('tr');
+function validarCodigo() {
+  const codigo = document.getElementById("codigoAcceso").value;
 
-    // Persona
-    const tdPersona = document.createElement('td');
-    tdPersona.textContent = resultado.nombre;
-
-    // DNI
-    const tdDni = document.createElement('td');
-    tdDni.textContent = dni;
-
-    // Empresa
-    const tdEmpresa = document.createElement('td');
-    tdEmpresa.textContent = resultado.empresa;
-
-    // Semáforo
-    const tdSemaforo = document.createElement('td');
-    const divSemaforo = document.createElement('div');
-    divSemaforo.classList.add('semaforo');
-    actualizarSemaforoColor(divSemaforo, resultado.semaforo);
-    tdSemaforo.appendChild(divSemaforo);
-
-    // Agregar columnas a la fila
-    tr.appendChild(tdPersona);
-    tr.appendChild(tdDni);
-    tr.appendChild(tdEmpresa);
-    tr.appendChild(tdSemaforo);
-
-    // Agregar fila al tbody
-    tbody.appendChild(tr);
+  if (codigo === CLAVE_SEGURIDAD) {
+    alert("DETALLE:\n\n" + detallePendiente);
+    cerrarModal();
   } else {
-    // Persona no encontrada
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-    td.colSpan = 4;
-    td.textContent = "Persona no encontrada";
-    td.style.color = "red";
-    tr.appendChild(td);
-    tbody.appendChild(tr);
+    document.getElementById("mensajeError").textContent = "Código incorrecto";
   }
+}
+
+function cerrarModal() {
+  document.getElementById("modal").style.display = "none";
 }
