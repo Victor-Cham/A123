@@ -2,37 +2,17 @@
    CONFIG
    =============================== */
 const API_URL = "https://script.google.com/macros/s/AKfycbx8Reu89EN_O6f7NfPlqCRQifClHG74kSCAEJiZKetpd19B09OO9qmey680-26mH5ne/exec";
-const USUARIO = "admin";
-const PASSWORD = "1234";
+const CLAVE_SEGURIDAD = "A123";
 
 let personaActual = null;
-let personaRegistro = null;
-let loginOk = false;
 
 /* ===============================
    EVENTOS
    =============================== */
 document.getElementById("btnBuscar").addEventListener("click", buscar);
-document.getElementById("dni").addEventListener("keydown", e => { if(e.key==="Enter") buscar(); });
-document.getElementById("loginIcon").addEventListener("click",()=>{ document.getElementById("modalLogin").style.display="flex"; });
-
-/* ===============================
-   LOGIN
-   =============================== */
-function validarLogin(){
-  const u = document.getElementById("usuarioLogin").value;
-  const p = document.getElementById("passLogin").value;
-
-  if(u===USUARIO && p===PASSWORD){
-    loginOk = true;
-    cerrarModal('modalLogin');
-    document.getElementById("modalRegistro").style.display="flex";
-  } else {
-    document.getElementById("mensajeErrorLogin").textContent="Usuario o contraseña incorrectos";
-  }
-}
-
-function cerrarModal(id){ document.getElementById(id).style.display="none"; }
+document.getElementById("dni").addEventListener("keydown", e => {
+  if (e.key === "Enter") buscar();
+});
 
 /* ===============================
    BUSCAR PERSONA
@@ -40,22 +20,24 @@ function cerrarModal(id){ document.getElementById(id).style.display="none"; }
 async function buscar() {
   const documento = document.getElementById("dni").value.trim();
   const tbody = document.querySelector("#tablaResultado tbody");
-  if(!documento) return;
+
+  if (!documento) return;
 
   tbody.innerHTML = `<tr><td colspan="4">Buscando...</td></tr>`;
 
-  try{
+  try {
     const res = await fetch(`${API_URL}?documento=${encodeURIComponent(documento)}`);
     const data = await res.json();
 
-    if(!data.encontrado){
-      personaActual=null;
-      tbody.innerHTML=`<tr><td colspan="4">Persona no encontrada</td></tr>`;
+    if (!data.encontrado) {
+      personaActual = null;
+      tbody.innerHTML = `<tr><td colspan="4">Persona no encontrada</td></tr>`;
       return;
     }
 
     personaActual = data;
-    tbody.innerHTML=`
+
+    tbody.innerHTML = `
       <tr>
         <td>${data.persona.nombre}</td>
         <td>${data.persona.documento}</td>
@@ -64,93 +46,108 @@ async function buscar() {
           <span class="semaforo"
                 title="Ver detalle"
                 style="background:${colorSemaforo(data.estado)}"
-                onclick="abrirModalDetalle()"></span>
+                onclick="abrirModalSeguridad()">
+          </span>
         </td>
       </tr>
     `;
-  }catch(e){
-    tbody.innerHTML=`<tr><td colspan="4">Error de conexión</td></tr>`;
+
+  } catch (error) {
+    tbody.innerHTML = `<tr><td colspan="4">Error de conexión</td></tr>`;
   }
 }
 
 /* ===============================
-   SEMAFORO
+   SEMÁFORO
    =============================== */
-function colorSemaforo(estado){
-  return estado==="ROJO"?"red":estado==="AMARILLO"?"orange":"green";
+function colorSemaforo(estado) {
+  return estado === "ROJO" ? "red" :
+         estado === "AMARILLO" ? "orange" :
+         "green";
+}
+
+/* ===============================
+   MODAL SEGURIDAD
+   =============================== */
+function abrirModalSeguridad() {
+  if (!personaActual) return;
+
+  document.getElementById("codigoAcceso").value = "";
+  document.getElementById("mensajeError").textContent = "";
+  document.getElementById("modal").style.display = "flex";
+}
+
+function validarCodigo() {
+  const codigo = document.getElementById("codigoAcceso").value;
+
+  if (codigo === CLAVE_SEGURIDAD) {
+    cerrarModalSeguridad();
+    mostrarDetalle();
+  } else {
+    document.getElementById("mensajeError").textContent = "Código incorrecto";
+  }
+}
+
+function cerrarModalSeguridad() {
+  document.getElementById("modal").style.display = "none";
 }
 
 /* ===============================
    MODAL DETALLE
    =============================== */
-function abrirModalDetalle(){
-  if(!personaActual) return;
-  document.getElementById("detNombre").textContent=personaActual.persona.nombre;
-  document.getElementById("detDocumento").textContent=personaActual.persona.documento;
-  document.getElementById("detEmpresa").textContent=personaActual.persona.empresa;
+function mostrarDetalle() {
+  const p = personaActual.persona;
 
-  document.getElementById("detEstadoTexto").textContent=personaActual.estado==="ROJO"?"ANTECEDENTE":personaActual.estado;
-  document.getElementById("detEstadoSemaforo").style.background=colorSemaforo(personaActual.estado);
+  document.getElementById("detNombre").textContent = p.nombre;
+  document.getElementById("detDocumento").textContent = p.documento;
+  document.getElementById("detEmpresa").textContent = p.empresa;
 
-  const cont=document.getElementById("detDescripcion");
-  if(!personaActual.detalles || personaActual.detalles.length===0){
-    cont.textContent="Sin registros.";
-  } else {
-    cont.innerHTML=personaActual.detalles.map(d=>`• ${d.descripcion} (${formatearFecha(d.fecha)})`).join("<br>");
+  // Determinar la descripción más grave
+  let nivelMax = 0;
+  let descripcionMax = "VERDE"; // default si no hay detalle
+
+  if (personaActual.detalles && personaActual.detalles.length > 0) {
+    personaActual.detalles.forEach(det => {
+      if (det.nivel > nivelMax) {
+        nivelMax = det.nivel;
+        descripcionMax = det.tipo_descripcion;
+      }
+    });
   }
 
-  document.getElementById("modalDetalle").style.display="flex";
+  // Mostrar descripción en el modal
+  document.getElementById("detEstadoTexto").textContent = descripcionMax;
+
+  // Colorear el semáforo según el nivel máximo
+  document.getElementById("detEstadoSemaforo").style.background =
+    nivelMax === 2 ? "red" :
+    nivelMax === 1 ? "orange" :
+    "green";
+
+  // Detalles
+  const cont = document.getElementById("detDescripcion");
+
+  if (!personaActual.detalles || personaActual.detalles.length === 0) {
+    cont.textContent = "Sin registros.";
+  } else {
+    cont.innerHTML = personaActual.detalles
+      .map(d => `• ${d.descripcion} (${formatearFecha(d.fecha)})`)
+      .join("<br>");
+  }
+
+  // Abrir modal de detalle
+  document.getElementById("modalDetalle").style.display = "flex";
 }
 
-function formatearFecha(fecha){
-  if(!fecha) return "";
-  const f=new Date(fecha);
-  return f.toLocaleDateString("es-PE");
+function cerrarModalDetalle() {
+  document.getElementById("modalDetalle").style.display = "none";
 }
 
 /* ===============================
-   MODAL REGISTRO
+   UTIL
    =============================== */
-function buscarPersonaRegistro(){
-  const doc=document.getElementById("regDocumento").value.trim();
-  if(!doc) return;
-
-  fetch(`${API_URL}?documento=${encodeURIComponent(doc)}`)
-    .then(res=>res.json())
-    .then(data=>{
-      if(data.encontrado){
-        personaRegistro=data.persona;
-        document.getElementById("personaDatos").style.display="none";
-        document.getElementById("mensajeRegistro").textContent="Persona encontrada. Puede agregar A123";
-      } else {
-        personaRegistro=null;
-        document.getElementById("personaDatos").style.display="block";
-        document.getElementById("mensajeRegistro").textContent="Persona no encontrada. Complete los datos";
-      }
-    });
-}
-
-function registrar(){
-  const doc=document.getElementById("regDocumento").value.trim();
-  const nombre=document.getElementById("regNombre").value.trim();
-  const empresa=document.getElementById("regEmpresa").value.trim();
-  const tipo=document.getElementById("regTipo").value;
-  const detalle=document.getElementById("regDetalle").value;
-
-  if(!doc || !tipo) return;
-
-  let payload={};
-  if(personaRegistro){ // ya existe persona
-    payload={accion:"insertA123", persona_id:personaRegistro.persona_id, tipo_id:tipo, detalle:detalle};
-  } else { // nueva persona
-    payload={accion:"insertPersonaA123", documento:doc, nombre:nombre, empresa:empresa, tipo_id:tipo, detalle:detalle};
-  }
-
-  fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify(payload)
-  })
-  .then(res=>res.json())
-  .then(r=>{ document.getElementById("mensajeRegistro").textContent=r.mensaje||"Registrado con éxito"; })
-  .catch(err=>{ document.getElementById("mensajeRegistro").textContent="Error al registrar"; });
+function formatearFecha(fecha) {
+  if (!fecha) return "";
+  const f = new Date(fecha);
+  return f.toLocaleDateString("es-PE");
 }
