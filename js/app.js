@@ -2,7 +2,6 @@
    CONFIG
    =============================== */
 const API_URL = "https://script.google.com/macros/s/AKfycbx8Reu89EN_O6f7NfPlqCRQifClHG74kSCAEJiZKetpd19B09OO9qmey680-26mH5ne/exec";
-
 const CLAVE_SEGURIDAD = "A123";
 
 let personaActual = null;
@@ -11,7 +10,6 @@ let personaActual = null;
    EVENTOS
    =============================== */
 document.getElementById("btnBuscar").addEventListener("click", buscar);
-
 document.getElementById("dni").addEventListener("keydown", e => {
   if (e.key === "Enter") buscar();
 });
@@ -112,7 +110,7 @@ function mostrarDetalle() {
     personaActual.detalles.forEach(det => {
       if (det.nivel > nivelMax) {
         nivelMax = det.nivel;
-        descripcionMax = det.tipo_descripcion; // mostramos la descripción
+        descripcionMax = det.tipo_descripcion;
       }
     });
   }
@@ -141,6 +139,9 @@ function mostrarDetalle() {
   document.getElementById("modalDetalle").style.display = "flex";
 }
 
+function cerrarModalDetalle() {
+  document.getElementById("modalDetalle").style.display = "none";
+}
 
 /* ===============================
    UTIL
