@@ -20,6 +20,57 @@ header {
   font-size: 24px;
 }
 
+/* Buscador */
+#busqueda input {
+  padding: 10px;
+  width: 60%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+#busqueda button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #2b2b2b;
+  color: white;
+  cursor: pointer;
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  margin-top: 30px;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,.1);
+}
+
+thead {
+  background: #2b2b2b;
+  color: white;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background: #f7f7f7;
+}
+
+/* Semáforo */
+.semaforo {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+
 /* Modales */
 .modal {
   display: none;
@@ -43,6 +94,12 @@ header {
   display: flex;
   justify-content: space-between;
   margin: 8px 0;
+}
+
+.detalle-descripcion {
+  margin-top: 15px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
 }
 
 .modal-buttons {
