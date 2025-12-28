@@ -1,7 +1,7 @@
 /* ===============================
    CONFIG
    =============================== */
-const API_URL = "TU_URL_DE_APPS_SCRIPT";
+const API_URL = "https://script.google.com/macros/s/AKfycbx8Reu89EN_O6f7NfPlqCRQifClHG74kSCAEJiZKetpd19B09OO9qmey680-26mH5ne/exec";
 const USUARIO = "admin";
 const PASSWORD = "1234";
 
