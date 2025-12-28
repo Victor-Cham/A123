@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Consulta de Persona</title>
+  <title>Consulta y Registro de Personas</title>
   <link rel="stylesheet" href="css/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -10,12 +10,13 @@
 
 <header>
   <h1>Consulta de Persona</h1>
+  <div id="loginIcon" title="Login">&#128100;</div>
 </header>
 
 <main>
   <!-- Buscador -->
   <section id="busqueda">
-    <input type="text" id="dni" placeholder="Ingrese DNI, pasaporte o carnet">
+    <input type="text" id="dni" placeholder="Ingrese DNI, pasaporte o nombre">
     <button id="btnBuscar">Buscar</button>
   </section>
 
@@ -36,42 +37,54 @@
 </main>
 
 <!-- Modal seguridad -->
-<div id="modal" class="modal">
+<div id="modalLogin" class="modal">
   <div class="modal-content">
-    <h3>Acceso restringido</h3>
-    <p>Ingrese el código de seguridad</p>
-    <input type="password" id="codigoAcceso" placeholder="Código">
+    <h3>Login</h3>
+    <input type="text" id="usuarioLogin" placeholder="Usuario">
+    <input type="password" id="passLogin" placeholder="Contraseña">
     <div class="modal-buttons">
-      <button onclick="validarCodigo()">Aceptar</button>
-      <button onclick="cerrarModalSeguridad()">Cancelar</button>
+      <button onclick="validarLogin()">Ingresar</button>
+      <button onclick="cerrarModal('modalLogin')">Cancelar</button>
     </div>
-    <p id="mensajeError" style="color:red; margin-top:10px;"></p>
+    <p id="mensajeErrorLogin"></p>
   </div>
 </div>
 
-<!-- Modal detalle -->
-<div id="modalDetalle" class="modal">
+<!-- Modal registro -->
+<div id="modalRegistro" class="modal">
   <div class="modal-content detalle">
-    <h3>Detalle de la Persona</h3>
+    <h3>Registro A123 / Persona</h3>
 
-    <div class="detalle-item"><strong>Persona:</strong> <span id="detNombre"></span></div>
-    <div class="detalle-item"><strong>Documento:</strong> <span id="detDocumento"></span></div>
-    <div class="detalle-item"><strong>Empresa:</strong> <span id="detEmpresa"></span></div>
-
-    <div class="detalle-item estado">
-      <strong>Estado:</strong>
-      <span id="detEstadoTexto"></span>
-      <span id="detEstadoSemaforo" class="semaforo"></span>
+    <div class="detalle-item">
+      <strong>Documento:</strong>
+      <input type="text" id="regDocumento" placeholder="DNI, Pasaporte...">
+      <button onclick="buscarPersonaRegistro()">Buscar</button>
     </div>
 
-    <div class="detalle-descripcion">
+    <div id="personaDatos" style="display:none;">
+      <div class="detalle-item"><strong>Nombre:</strong> <input type="text" id="regNombre"></div>
+      <div class="detalle-item"><strong>Empresa:</strong> <input type="text" id="regEmpresa"></div>
+    </div>
+
+    <div class="detalle-item">
+      <strong>Tipo:</strong>
+      <select id="regTipo">
+        <option value="SIN_REGISTRO">Sin Registro</option>
+        <option value="RESTRICCION">Restricción</option>
+        <option value="ANTECEDENTE">Antecedente</option>
+      </select>
+    </div>
+
+    <div class="detalle-item">
       <strong>Detalle:</strong>
-      <div id="detDescripcion" class="descripcion-scroll"></div>
+      <input type="text" id="regDetalle" placeholder="Descripción del registro">
     </div>
 
     <div class="modal-buttons">
-      <button onclick="cerrarModalDetalle()">Cerrar</button>
+      <button onclick="registrar()">Agregar</button>
+      <button onclick="cerrarModal('modalRegistro')">Cancelar</button>
     </div>
+    <p id="mensajeRegistro"></p>
   </div>
 </div>
 
