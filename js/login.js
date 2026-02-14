@@ -1,66 +1,103 @@
 // URL de tu Apps Script de login
-const URL_LOGIN = "https://script.google.com/macros/s/AKfycbxakXFtA1t_CARxcRIduLZMOG1RqQP7reK59mVUd-HPqZgfq7l3NKjJEjmh2O0RYRs9Zw/exec"; // <- reemplaza con tu URL real
+const URL_LOGIN = "https://script.google.com/macros/s/AKfycbxakXFtA1t_CARxcRIduLZMOG1RqQP7reK59mVUd-HPqZgfq7l3NKjJEjmh2O0RYRs9Zw/exec";
 
 // Capturar formulario
 const form = document.getElementById("loginForm");
 if (form) {
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
-    login();
+    handleLogin();
   });
 }
 
-// Función login
-async function login() {
-  const usuario = document.getElementById("usuario").value.trim();
-  const contrasena = document.getElementById("contrasena").value.trim();
+// Función principal de login
+async function handleLogin() {
+  const usuario = getInputValue("usuario");
+  const contrasena = getInputValue("contrasena");
   const alertDiv = document.getElementById("alert");
 
-  alertDiv.style.display = "none";
-  alertDiv.textContent = "";
-
   if (!usuario || !contrasena) {
-    alertDiv.textContent = "Ingrese usuario y contraseña";
-    alertDiv.style.display = "block";
-    return;
+    return showAlert("Ingrese usuario y contraseña");
   }
 
   try {
-    const res = await fetch(`${URL_LOGIN}?action=login&usuario=${encodeURIComponent(usuario)}&contrasena=${encodeURIComponent(contrasena)}`);
-    const data = await res.json();
+    const data = await sendLoginRequest(usuario, contrasena);
 
     if (data.success) {
-      // Guardar sessionId en localStorage
-      localStorage.setItem("sessionId", data.sessionId);
-      localStorage.setItem("usuario", data.Usuario);
-      localStorage.setItem("tipoUsuario", data.TipoUsuario);
-
-      // Redirigir según tipoUsuario
-      if (data.TipoUsuario.toLowerCase() === "admin") {
-        window.location.href = "dashboard.html"; // página de admin
-      } else {
-        window.location.href = "consulta.html"; // página de usuario normal
-      }
+      saveSession(data);
+      redirectUser(data.TipoUsuario);
     } else {
-      alertDiv.textContent = data.message || "Error en login";
-      alertDiv.style.display = "block";
+      showAlert(data.message || "Error en login");
     }
+
   } catch (err) {
-    alertDiv.textContent = "Error de conexión";
-    alertDiv.style.display = "block";
-    console.error(err);
+    console.error("Login error:", err);
+    showAlert("Error de conexión. Intente nuevamente.");
   }
 }
 
-// Función para validar sesión al cargar cualquier página protegida
+// Obtener valor de input por id
+function getInputValue(id) {
+  const input = document.getElementById(id);
+  return input ? input.value.trim() : "";
+}
+
+// Mostrar mensaje de alerta
+function showAlert(msg) {
+  const alertDiv = document.getElementById("alert");
+  if (!alertDiv) return;
+  alertDiv.textContent = msg;
+  alertDiv.style.display = "block";
+}
+
+// Enviar request al Apps Script
+async function sendLoginRequest(usuario, contrasena) {
+  const query = new URLSearchParams({
+    action: "login",
+    usuario,
+    contrasena
+  });
+
+  const res = await fetch(`${URL_LOGIN}?${query.toString()}`, {
+    method: "GET",
+    headers: { "Accept": "application/json" }
+  });
+
+  if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+
+  // Intentar parsear JSON, con manejo de errores
+  try {
+    return await res.json();
+  } catch {
+    throw new Error("Respuesta no es JSON válido");
+  }
+}
+
+// Guardar sesión en localStorage
+function saveSession(data) {
+  localStorage.setItem("sessionId", data.sessionId);
+  localStorage.setItem("usuario", data.Usuario);
+  localStorage.setItem("tipoUsuario", data.TipoUsuario);
+}
+
+// Redirigir según tipo de usuario
+function redirectUser(tipoUsuario) {
+  const tipo = tipoUsuario.toLowerCase();
+  if (tipo === "admin") {
+    window.location.href = "dashboard.html";
+  } else {
+    window.location.href = "consulta.html";
+  }
+}
+
+// Validar sesión al cargar páginas protegidas
 function validarSesion() {
-  const sessionId = localStorage.getItem("sessionId");
-  if (!sessionId) {
+  if (!localStorage.getItem("sessionId")) {
     window.location.href = "login.html";
   }
 }
 
-// Función logout
+// Cerrar sesión
 function logout() {
   localStorage.removeItem("sessionId");
   localStorage.removeItem("usuario");
