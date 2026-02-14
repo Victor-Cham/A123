@@ -13,6 +13,43 @@ body.login-page {
   margin: 0;
 }
 
+/* Ajuste del main ahora con clase .content */
+main.content {
+  margin-left: 220px;      /* sidebar */
+  padding: 120px 40px 40px 40px; /* espacio superior para header + margen */
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* centra contenido horizontalmente */
+}
+
+/* Buscador */
+#busqueda {
+  width: 100%;
+  max-width: 600px;       /* evita que sea muy ancho */
+  display: flex;
+  justify-content: center; /* centra los inputs y botón */
+  margin-bottom: 30px;
+}
+
+#busqueda input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px 0 0 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+#busqueda button {
+  padding: 10px 20px;
+  border-radius: 0 8px 8px 0;
+  border: none;
+  background: #2b2b2b;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+
 .login-container {
   background: rgba(255,255,255,0.85);
   padding: 2rem;
