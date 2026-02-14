@@ -1,5 +1,5 @@
 // URL de tu Apps Script de login
-const URL_LOGIN = "TU_APPS_SCRIPT_LOGIN_URL"; // <- reemplaza con tu URL real
+const URL_LOGIN = "https://script.google.com/macros/s/AKfycbxakXFtA1t_CARxcRIduLZMOG1RqQP7reK59mVUd-HPqZgfq7l3NKjJEjmh2O0RYRs9Zw/exec"; // <- reemplaza con tu URL real
 
 async function login() {
   const usuario = document.getElementById("usuario").value.trim();
