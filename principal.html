@@ -5,72 +5,6 @@
   <title>Consulta de Persona</title>
   <link rel="stylesheet" href="css/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    /* ===============================
-       SIDEBAR
-       =============================== */
-    body {
-      display: flex;
-      margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: #f0f2f5;
-    }
-
-    .sidebar {
-      width: 220px;
-      background-color: #2b2b2b;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      padding-top: 60px; /* espacio para header si se quiere fijo */
-    }
-
-    .sidebar h2 {
-      text-align: center;
-      margin: 0 0 20px 0;
-      font-size: 1.2rem;
-    }
-
-    .sidebar a {
-      color: white;
-      padding: 15px 20px;
-      text-decoration: none;
-      display: block;
-      transition: 0.3s;
-    }
-
-    .sidebar a:hover {
-      background-color: #444;
-    }
-
-    /* Contenido principal desplazado a la derecha */
-    main.content {
-      margin-left: 220px;
-      padding: 20px 40px;
-      flex: 1;
-    }
-
-    header {
-      position: fixed;
-      top: 0;
-      left: 220px;
-      width: calc(100% - 220px);
-      background: #2b2b2b;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      z-index: 500;
-    }
-
-    /* Ajustar margen superior para contenido debajo del header */
-    main.content {
-      margin-top: 80px;
-    }
-  </style>
 </head>
 <body>
 
@@ -87,11 +21,12 @@
     <a href="#">RUTAS</a>
   </nav>
 
-  <!-- Contenido principal -->
+  <!-- Header fijo -->
   <header>
     <h1>Consulta de Persona</h1>
   </header>
 
+  <!-- Contenido principal -->
   <main class="content">
     <!-- Buscador -->
     <section id="busqueda">
