@@ -1,3 +1,74 @@
+/* ===============================
+   LOGIN PROFESIONAL
+   =============================== */
+body.login-page {
+  background-image: url('./img/pinguino.jpg'); /* tu imagen renombrada a .jpg */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.login-container {
+  background: rgba(255,255,255,0.85);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+/* Logo */
+.login-container .logo {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #2b2b2b;
+}
+
+/* Inputs */
+.login-container input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+/* Botón */
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #2b2b2b;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-container button:hover {
+  background-color: #444;
+}
+
+/* Pie de página */
+.login-container footer {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+
+
+
 body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
