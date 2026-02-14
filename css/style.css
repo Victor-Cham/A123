@@ -13,43 +13,6 @@ body.login-page {
   margin: 0;
 }
 
-/* Ajuste del main ahora con clase .content */
-main.content {
-  margin-left: 220px;      /* sidebar */
-  padding: 120px 40px 40px 40px; /* espacio superior para header + margen */
-  display: flex;
-  flex-direction: column;
-  align-items: center;     /* centra contenido horizontalmente */
-}
-
-/* Buscador */
-#busqueda {
-  width: 100%;
-  max-width: 600px;       /* evita que sea muy ancho */
-  display: flex;
-  justify-content: center; /* centra los inputs y botón */
-  margin-bottom: 30px;
-}
-
-#busqueda input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px 0 0 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-#busqueda button {
-  padding: 10px 20px;
-  border-radius: 0 8px 8px 0;
-  border: none;
-  background: #2b2b2b;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-
 .login-container {
   background: rgba(255,255,255,0.85);
   padding: 2rem;
@@ -60,7 +23,6 @@ main.content {
   width: 90%;
 }
 
-/* Logo */
 .login-container .logo {
   font-size: 2.5rem;
   font-weight: 700;
@@ -68,7 +30,6 @@ main.content {
   color: #2b2b2b;
 }
 
-/* Inputs */
 .login-container input {
   width: 100%;
   padding: 12px;
@@ -78,7 +39,6 @@ main.content {
   font-size: 1rem;
 }
 
-/* Botón */
 .login-container button {
   width: 100%;
   padding: 12px;
@@ -96,7 +56,6 @@ main.content {
   background-color: #444;
 }
 
-/* Pie de página */
 .login-container footer {
   margin-top: 1.5rem;
   font-size: 0.8rem;
@@ -138,14 +97,9 @@ main.content {
   background-color: #444;
 }
 
-/* Contenido principal desplazado a la derecha */
-main.content {
-  margin-left: 220px; /* ancho del sidebar */
-  padding: 20px 40px;
-  flex: 1;
-}
-
-/* Header fijo si quieres mantenerlo visible */
+/* ===============================
+   HEADER
+   =============================== */
 header {
   position: fixed;
   top: 0;
@@ -158,44 +112,40 @@ header {
   z-index: 500;
 }
 
-/* Ajustar margen superior del main para no quedar debajo del header */
+/* ===============================
+   CONTENIDO PRINCIPAL
+   =============================== */
 main.content {
-  margin-top: 80px;
-}
-
-
-
-body {
-  font-family: 'Roboto', sans-serif;
-  margin: 0;
-  background: #f0f2f5;
-}
-
-header {
-  background: #2b2b2b;
-  color: white;
-  text-align: center;
-  padding: 20px;
-}
-
-main {
-  max-width: 800px;
-  margin: 40px auto;
-  text-align: center;
+  margin-left: 220px; /* ancho sidebar */
+  margin-top: 100px;  /* espacio para header */
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centra buscador y tabla */
+  flex: 1;
+  max-width: calc(100% - 240px);
 }
 
 /* Buscador */
+#busqueda {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
 #busqueda input {
+  flex: 1;
   padding: 10px;
-  width: 60%;
-  border-radius: 8px;
+  border-radius: 8px 0 0 8px;
   border: 1px solid #ccc;
   font-size: 16px;
 }
 
 #busqueda button {
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   border: none;
   background: #2b2b2b;
   color: white;
@@ -206,6 +156,7 @@ main {
 /* Tabla */
 table {
   width: 100%;
+  max-width: 800px;
   margin-top: 30px;
   border-collapse: collapse;
   background: white;
@@ -239,7 +190,9 @@ tbody tr:nth-child(even) {
   cursor: pointer;
 }
 
-/* Modales */
+/* ===============================
+   MODALES
+   =============================== */
 .modal {
   display: none;
   position: fixed;
@@ -294,4 +247,13 @@ tbody tr:nth-child(even) {
 
 .modal-buttons button:hover {
   background: #444;
+}
+
+/* ===============================
+   BODY GENERAL
+   =============================== */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  background: #f0f2f5;
 }
