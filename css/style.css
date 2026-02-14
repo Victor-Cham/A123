@@ -15,7 +15,7 @@ body.login-page {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url('pinguino.jpg');
+  background-image: url('../pinguino.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
