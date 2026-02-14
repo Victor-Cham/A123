@@ -1,7 +1,7 @@
 // URL de tu Apps Script de login
 const URL_LOGIN = "https://script.google.com/macros/s/AKfycbx3NAog0npp-x-qU5Igk7FSBFPKDgqm4-jSNEn5yhBpsqrOUNTmN0mTQh_6p0T3iyfBrw/exec";
 
-// Capturar formulario
+// Capturar formulario de login
 const form = document.getElementById("loginForm");
 if (form) {
   form.addEventListener("submit", (e) => {
@@ -14,7 +14,6 @@ if (form) {
 async function handleLogin() {
   const usuario = getInputValue("usuario");
   const contrasena = getInputValue("contrasena");
-  const alertDiv = document.getElementById("alert");
 
   if (!usuario || !contrasena) {
     return showAlert("Ingrese usuario y contraseña");
@@ -25,24 +24,24 @@ async function handleLogin() {
 
     if (data.success) {
       saveSession(data);
-      redirectUser(data.TipoUsuario);
+      // Redirige siempre a principal.html
+      window.location.href = "principal.html";
     } else {
-      showAlert(data.message || "Error en login");
+      showAlert(data.message || "Usuario o contraseña incorrectos");
     }
-
   } catch (err) {
     console.error("Login error:", err);
     showAlert("Error de conexión. Intente nuevamente.");
   }
 }
 
-// Obtener valor de input por id
+// Obtener valor de input
 function getInputValue(id) {
   const input = document.getElementById(id);
   return input ? input.value.trim() : "";
 }
 
-// Mostrar mensaje de alerta
+// Mostrar alerta
 function showAlert(msg) {
   const alertDiv = document.getElementById("alert");
   if (!alertDiv) return;
@@ -52,20 +51,15 @@ function showAlert(msg) {
 
 // Enviar request al Apps Script
 async function sendLoginRequest(usuario, contrasena) {
-  const query = new URLSearchParams({
-    action: "login",
-    usuario,
-    contrasena
-  });
+  const query = new URLSearchParams({ action: "login", usuario, contrasena });
 
   const res = await fetch(`${URL_LOGIN}?${query.toString()}`, {
     method: "GET",
-    headers: { "Accept": "application/json" }
+    headers: { "Accept": "application/json" },
   });
 
   if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 
-  // Intentar parsear JSON, con manejo de errores
   try {
     return await res.json();
   } catch {
@@ -80,20 +74,10 @@ function saveSession(data) {
   localStorage.setItem("tipoUsuario", data.TipoUsuario);
 }
 
-// Redirigir según tipo de usuario
-function redirectUser(tipoUsuario) {
-  const tipo = tipoUsuario.toLowerCase();
-  if (tipo === "admin") {
-    window.location.href = "dashboard.html";
-  } else {
-    window.location.href = "consulta.html";
-  }
-}
-
-// Validar sesión al cargar páginas protegidas
+// Validar sesión en cualquier página protegida
 function validarSesion() {
   if (!localStorage.getItem("sessionId")) {
-    window.location.href = "login.html";
+    window.location.href = "index.html";
   }
 }
 
@@ -102,5 +86,5 @@ function logout() {
   localStorage.removeItem("sessionId");
   localStorage.removeItem("usuario");
   localStorage.removeItem("tipoUsuario");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
