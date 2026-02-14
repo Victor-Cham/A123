@@ -1,16 +1,24 @@
 /* ===============================
+   BODY GENERAL
+   =============================== */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  background: #f0f2f5;
+}
+
+/* ===============================
    LOGIN PROFESIONAL
    =============================== */
 body.login-page {
-  background-image: url('./img/pinguino.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  margin: 0;
+  background-image: url('./img/pinguino.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .login-container {
@@ -139,14 +147,14 @@ main.content {
 
 #busqueda input {
   flex: 1;
-  padding: 12px; /* altura uniforme */
+  padding: 12px;
   border-radius: 8px 0 0 8px;
   border: 1px solid #ccc;
   font-size: 16px;
 }
 
 #busqueda button {
-  padding: 12px 20px; /* misma altura que input */
+  padding: 12px 20px;
   border-radius: 0 8px 8px 0;
   border: none;
   background: #2b2b2b;
@@ -259,13 +267,4 @@ tbody tr:nth-child(even) {
 
 .modal-buttons button:hover {
   background: #444;
-}
-
-/* ===============================
-   BODY GENERAL
-   =============================== */
-body {
-  font-family: 'Roboto', sans-serif;
-  margin: 0;
-  background: #f0f2f5;
 }
