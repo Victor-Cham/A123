@@ -1,5 +1,5 @@
 // URL de tu Apps Script de login
-const URL_LOGIN = "https://script.google.com/macros/s/AKfycbxakXFtA1t_CARxcRIduLZMOG1RqQP7reK59mVUd-HPqZgfq7l3NKjJEjmh2O0RYRs9Zw/exec";
+const URL_LOGIN = "https://script.google.com/macros/s/AKfycbx3NAog0npp-x-qU5Igk7FSBFPKDgqm4-jSNEn5yhBpsqrOUNTmN0mTQh_6p0T3iyfBrw/exec";
 
 // Capturar formulario
 const form = document.getElementById("loginForm");
