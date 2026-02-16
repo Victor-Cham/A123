@@ -27,8 +27,8 @@
     <button class="logout-btn" onclick="salir()">Salir</button>
   </nav>
 
-  <!-- Header -->
-  <header></header>
+  <!-- Header fijo -->
+  <header>ᓚᘏᗢ</header>
 
   <!-- Contenido principal -->
   <main class="content">
@@ -37,6 +37,7 @@
       <p class="subtitle">Sistema de gestión y validación</p>
     </div>
 
+    <!-- Card: Buscador -->
     <div class="card">
       <section id="busqueda">
         <input type="text" id="dni" placeholder="Ingrese DNI, pasaporte o carnet">
@@ -44,6 +45,7 @@
       </section>
     </div>
 
+    <!-- Card: Tabla -->
     <div class="card">
       <section id="resultado">
         <table id="tablaResultado">
@@ -60,6 +62,46 @@
       </section>
     </div>
   </main>
+
+  <!-- Modal detalle de persona -->
+  <div id="modalDetalle" class="modal">
+    <div class="modal-content">
+      <h3>Detalle de la Persona</h3>
+
+      <div class="detalle-item"><strong>Persona:</strong> <span id="detNombre"></span></div>
+      <div class="detalle-item"><strong>Documento:</strong> <span id="detDocumento"></span></div>
+      <div class="detalle-item"><strong>Empresa:</strong> <span id="detEmpresa"></span></div>
+
+      <div class="detalle-item estado">
+        <strong>Estado:</strong>
+        <span id="detEstadoTexto"></span>
+        <span id="detEstadoSemaforo" class="semaforo"></span>
+      </div>
+
+      <div class="detalle-descripcion">
+        <strong>Detalle:</strong>
+        <div id="detDescripcion" class="descripcion-scroll"></div>
+      </div>
+
+      <div class="modal-buttons">
+        <button onclick="cerrarModalDetalle()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal seguridad -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h3>Acceso restringido</h3>
+      <p>Ingrese el código de seguridad</p>
+      <input type="password" id="codigoAcceso" placeholder="Código">
+      <div class="modal-buttons">
+        <button onclick="validarCodigo()">Aceptar</button>
+        <button onclick="cerrarModalSeguridad()">Cancelar</button>
+      </div>
+      <p id="mensajeError" style="color:red; margin-top:10px;"></p>
+    </div>
+  </div>
 
   <script src="js/app.js"></script>
   <script src="js/sidebar.js"></script>
