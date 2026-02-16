@@ -292,3 +292,19 @@ tbody tr:hover {
 .sidebar.expanded ~ .content {
   margin-left: 240px;
 }
+
+
+
+/* ===============================
+   SEMÁFORO ESTADO PERSONA
+=============================== */
+.semaforo {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+  cursor: default;
+  background-color: gray; /* color por defecto si no se asigna en JS */
+}
