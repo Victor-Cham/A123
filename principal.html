@@ -35,6 +35,8 @@
     <div class="page-header">
       <h1>Consulta de Persona</h1>
       <p class="subtitle">Sistema de gestión y validación</p>
+      <!-- Botón agregar persona -->
+      <button id="btnAgregar" class="btn-agregar" title="Agregar Persona">+</button>
     </div>
 
     <!-- Card: Buscador -->
@@ -100,6 +102,57 @@
         <button onclick="cerrarModalSeguridad()">Cancelar</button>
       </div>
       <p id="mensajeError" style="color:red; margin-top:10px;"></p>
+    </div>
+  </div>
+
+  <!-- Modal agregar persona -->
+  <div id="modalAgregar" class="modal">
+    <div class="modal-content">
+      <h3>Agregar Persona</h3>
+
+      <div class="detalle-item">
+        <strong>DNI / Documento:</strong>
+        <input type="text" id="agregarDNI" placeholder="Ingrese DNI">
+        <button id="btnBuscarAgregar">Buscar</button>
+      </div>
+
+      <div class="detalle-item">
+        <strong>Nombre:</strong>
+        <input type="text" id="agregarNombre" placeholder="Nombre completo">
+      </div>
+
+      <div class="detalle-item">
+        <strong>Empresa:</strong>
+        <input type="text" id="agregarEmpresa" placeholder="Empresa (opcional)">
+      </div>
+
+      <div class="detalle-item">
+        <strong>Categoría:</strong>
+        <select id="agregarCategoria">
+          <option value="">--Seleccione--</option>
+          <option value="1">Categoría 1</option>
+          <option value="2">Categoría 2</option>
+        </select>
+      </div>
+
+      <div class="detalle-item">
+        <strong>Catálogo:</strong>
+        <select id="agregarCatalogo">
+          <option value="">--Seleccione categoría primero--</option>
+        </select>
+      </div>
+
+      <div class="detalle-item">
+        <strong>Descripción:</strong>
+        <textarea id="agregarDescripcion" placeholder="Ingrese detalle"></textarea>
+      </div>
+
+      <div class="modal-buttons">
+        <button id="btnGuardarPersona">Guardar</button>
+        <button onclick="cerrarModalAgregar()">Cancelar</button>
+      </div>
+
+      <p id="mensajeAgregar" style="color:red; margin-top:10px;"></p>
     </div>
   </div>
 
