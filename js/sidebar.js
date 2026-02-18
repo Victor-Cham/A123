@@ -36,7 +36,7 @@ window.addEventListener('load', ajustarLayout);
 // FUNCION SALIR (puedes reemplazar)
 // ===============================
 function salir() {
-  alert("Cerrar sesión (aquí tu lógica real)");
+  alert("Cerrar sesión");
   // Por ejemplo, redirigir al login:
   window.location.href = "index.html";
 }
