@@ -22,6 +22,32 @@ document.getElementById("btnAgregar")?.addEventListener("click", abrirModalAgreg
 document.getElementById("btnGuardarPersona")?.addEventListener("click", guardarPersona);
 document.getElementById("btnCancelarPersona")?.addEventListener("click", cerrarModalAgregar);
 
+// Al cambiar categoría, cargar catálogo
+document.getElementById("agregarCategoria")?.addEventListener("change", async function() {
+  const categoriaId = this.value;
+  const catalogoSelect = document.getElementById("agregarCatalogo");
+  catalogoSelect.innerHTML = "<option>Cargando...</option>";
+
+  if (!categoriaId) {
+    catalogoSelect.innerHTML = '<option value="">--Seleccione categoría primero--</option>';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}?accion=listaCatalogo&categoriaId=${categoriaId}`);
+    const data = await res.json();
+    catalogoSelect.innerHTML = '<option value="">--Seleccione--</option>';
+    data.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      catalogoSelect.appendChild(opt);
+    });
+  } catch (err) {
+    catalogoSelect.innerHTML = '<option value="">Error al cargar catálogo</option>';
+  }
+});
+
 /* ===============================
    BUSCAR PERSONA
 =============================== */
@@ -156,13 +182,32 @@ function cerrarModalDetalle() {
 /* ===============================
    MODAL AGREGAR PERSONA
 =============================== */
-function abrirModalAgregar() {
+async function abrirModalAgregar() {
   document.getElementById("modalAgregar").style.display = "flex";
-  // Resetear campos
   document.getElementById("nuevoNombre").value = "";
   document.getElementById("nuevoDocumento").value = "";
   document.getElementById("nuevaEmpresa").value = "";
   document.getElementById("mensajeErrorAgregar").textContent = "";
+
+  // Cargar categorías
+  try {
+    const res = await fetch(`${API_URL}?accion=listaCategorias`);
+    const data = await res.json();
+    const catSelect = document.getElementById("agregarCategoria");
+    catSelect.innerHTML = '<option value="">--Seleccione--</option>';
+    data.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      catSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Error cargando categorías", err);
+  }
+
+  // Reset catálogo
+  const catalogoSelect = document.getElementById("agregarCatalogo");
+  catalogoSelect.innerHTML = '<option value="">--Seleccione categoría primero--</option>';
 }
 
 function cerrarModalAgregar() {
@@ -176,8 +221,10 @@ async function guardarPersona() {
   const nombre = document.getElementById("nuevoNombre").value.trim();
   const documento = document.getElementById("nuevoDocumento").value.trim();
   const empresa = document.getElementById("nuevaEmpresa").value.trim();
+  const categoria = document.getElementById("agregarCategoria").value;
+  const catalogo = document.getElementById("agregarCatalogo").value;
 
-  if (!nombre || !documento || !empresa) {
+  if (!nombre || !documento || !empresa || !categoria || !catalogo) {
     document.getElementById("mensajeErrorAgregar").textContent = "Todos los campos son obligatorios";
     return;
   }
@@ -188,9 +235,11 @@ async function guardarPersona() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         accion: "agregar",
-        nombre: nombre,
-        documento: documento,
-        empresa: empresa
+        nombre,
+        documento,
+        empresa,
+        categoria,
+        catalogo
       })
     });
 
@@ -199,7 +248,7 @@ async function guardarPersona() {
     if (data.exito) {
       alert("Persona agregada correctamente");
       cerrarModalAgregar();
-      buscar(); // refresca tabla
+      buscar();
     } else {
       document.getElementById("mensajeErrorAgregar").textContent = data.mensaje || "Error al guardar";
     }
