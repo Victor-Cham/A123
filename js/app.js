@@ -1,6 +1,6 @@
 /* ===============================
    CONFIG
-   =============================== */
+=============================== */
 const API_URL = "https://script.google.com/macros/s/AKfycbx8Reu89EN_O6f7NfPlqCRQifClHG74kSCAEJiZKetpd19B09OO9qmey680-26mH5ne/exec";
 const CLAVE_SEGURIDAD = "A123";
 
@@ -8,15 +8,23 @@ let personaActual = null;
 
 /* ===============================
    EVENTOS
-   =============================== */
+=============================== */
+// Buscar persona
 document.getElementById("btnBuscar").addEventListener("click", buscar);
 document.getElementById("dni").addEventListener("keydown", e => {
   if (e.key === "Enter") buscar();
 });
 
+// Botón agregar persona
+document.getElementById("btnAgregar")?.addEventListener("click", abrirModalAgregar);
+
+// Modal de registro
+document.getElementById("btnGuardarPersona")?.addEventListener("click", guardarPersona);
+document.getElementById("btnCancelarPersona")?.addEventListener("click", cerrarModalAgregar);
+
 /* ===============================
    BUSCAR PERSONA
-   =============================== */
+=============================== */
 async function buscar() {
   const documento = document.getElementById("dni").value.trim();
   const tbody = document.querySelector("#tablaResultado tbody");
@@ -59,7 +67,7 @@ async function buscar() {
 
 /* ===============================
    SEMÁFORO
-   =============================== */
+=============================== */
 function colorSemaforo(estado) {
   return estado === "ROJO" ? "red" :
          estado === "AMARILLO" ? "orange" :
@@ -68,10 +76,9 @@ function colorSemaforo(estado) {
 
 /* ===============================
    MODAL SEGURIDAD
-   =============================== */
+=============================== */
 function abrirModalSeguridad() {
   if (!personaActual) return;
-
   document.getElementById("codigoAcceso").value = "";
   document.getElementById("mensajeError").textContent = "";
   document.getElementById("modal").style.display = "flex";
@@ -94,7 +101,7 @@ function cerrarModalSeguridad() {
 
 /* ===============================
    MODAL DETALLE
-   =============================== */
+=============================== */
 function mostrarDetalle() {
   const p = personaActual.persona;
 
@@ -102,9 +109,8 @@ function mostrarDetalle() {
   document.getElementById("detDocumento").textContent = p.documento;
   document.getElementById("detEmpresa").textContent = p.empresa;
 
-  // Determinar la descripción más grave
   let nivelMax = 0;
-  let descripcionMax = "VERDE"; // default si no hay detalle
+  let descripcionMax = "VERDE";
 
   if (personaActual.detalles && personaActual.detalles.length > 0) {
     personaActual.detalles.forEach(det => {
@@ -115,16 +121,12 @@ function mostrarDetalle() {
     });
   }
 
-  // Mostrar descripción en el modal
   document.getElementById("detEstadoTexto").textContent = descripcionMax;
-
-  // Colorear el semáforo según el nivel máximo
   document.getElementById("detEstadoSemaforo").style.background =
     nivelMax === 2 ? "red" :
     nivelMax === 1 ? "orange" :
     "green";
 
-  // Detalles mejorados: incluyen categoría y catálogo
   const cont = document.getElementById("detDescripcion");
 
   if (!personaActual.detalles || personaActual.detalles.length === 0) {
@@ -144,7 +146,6 @@ function mostrarDetalle() {
       .join("");
   }
 
-  // Abrir modal de detalle
   document.getElementById("modalDetalle").style.display = "flex";
 }
 
@@ -153,8 +154,50 @@ function cerrarModalDetalle() {
 }
 
 /* ===============================
+   MODAL AGREGAR PERSONA
+=============================== */
+function abrirModalAgregar() {
+  document.getElementById("modalAgregar").style.display = "flex";
+  // Resetear campos
+  document.getElementById("nuevoNombre").value = "";
+  document.getElementById("nuevoDocumento").value = "";
+  document.getElementById("nuevaEmpresa").value = "";
+  document.getElementById("mensajeErrorAgregar").textContent = "";
+}
+
+function cerrarModalAgregar() {
+  document.getElementById("modalAgregar").style.display = "none";
+}
+
+async function guardarPersona() {
+  const nombre = document.getElementById("nuevoNombre").value.trim();
+  const documento = document.getElementById("nuevoDocumento").value.trim();
+  const empresa = document.getElementById("nuevaEmpresa").value.trim();
+
+  if (!nombre || !documento || !empresa) {
+    document.getElementById("mensajeErrorAgregar").textContent = "Todos los campos son obligatorios";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}?accion=agregar&nombre=${encodeURIComponent(nombre)}&documento=${encodeURIComponent(documento)}&empresa=${encodeURIComponent(empresa)}`);
+    const data = await res.json();
+
+    if (data.exito) {
+      alert("Persona agregada correctamente");
+      cerrarModalAgregar();
+      buscar(); // refresca tabla
+    } else {
+      document.getElementById("mensajeErrorAgregar").textContent = data.mensaje || "Error al guardar";
+    }
+  } catch (error) {
+    document.getElementById("mensajeErrorAgregar").textContent = "Error de conexión";
+  }
+}
+
+/* ===============================
    UTIL
-   =============================== */
+=============================== */
 function formatearFecha(fecha) {
   if (!fecha) return "";
   const f = new Date(fecha);
