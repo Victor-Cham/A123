@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <!-- Sidebar dinámico -->
+  <!-- Sidebar -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <h2>ᓚᘏᗢ</h2>
@@ -27,7 +27,7 @@
     <button class="logout-btn" onclick="salir()">Salir</button>
   </nav>
 
-  <!-- Header fijo -->
+  <!-- Header -->
   <header></header>
 
   <!-- Contenido principal -->
@@ -111,40 +111,18 @@
       <h3>Agregar Persona</h3>
 
       <div class="detalle-item">
-        <strong>DNI / Documento:</strong>
-        <input type="text" id="agregarDNI" placeholder="Ingrese DNI">
-        <button id="btnBuscarAgregar">Buscar</button>
+        <strong>Nombre:</strong>
+        <input type="text" id="nuevoNombre" placeholder="Nombre completo">
       </div>
 
       <div class="detalle-item">
-        <strong>Nombre:</strong>
-        <input type="text" id="agregarNombre" placeholder="Nombre completo">
+        <strong>DNI / Documento:</strong>
+        <input type="text" id="nuevoDocumento" placeholder="Ingrese DNI">
       </div>
 
       <div class="detalle-item">
         <strong>Empresa:</strong>
-        <input type="text" id="agregarEmpresa" placeholder="Empresa (opcional)">
-      </div>
-
-      <div class="detalle-item">
-        <strong>Categoría:</strong>
-        <select id="agregarCategoria">
-          <option value="">--Seleccione--</option>
-          <option value="1">Categoría 1</option>
-          <option value="2">Categoría 2</option>
-        </select>
-      </div>
-
-      <div class="detalle-item">
-        <strong>Catálogo:</strong>
-        <select id="agregarCatalogo">
-          <option value="">--Seleccione categoría primero--</option>
-        </select>
-      </div>
-
-      <div class="detalle-item">
-        <strong>Descripción:</strong>
-        <textarea id="agregarDescripcion" placeholder="Ingrese detalle"></textarea>
+        <input type="text" id="nuevaEmpresa" placeholder="Empresa">
       </div>
 
       <div class="modal-buttons">
@@ -152,7 +130,7 @@
         <button onclick="cerrarModalAgregar()">Cancelar</button>
       </div>
 
-      <p id="mensajeAgregar" style="color:red; margin-top:10px;"></p>
+      <p id="mensajeErrorAgregar" style="color:red; margin-top:10px;"></p>
     </div>
   </div>
 
