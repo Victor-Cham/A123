@@ -125,6 +125,30 @@
         <input type="text" id="nuevaEmpresa" placeholder="Empresa">
       </div>
 
+      <div class="detalle-item">
+        <strong>Categoría:</strong>
+        <select id="agregarCategoria">
+          <option value="">--Seleccione--</option>
+        </select>
+      </div>
+
+      <div class="detalle-item">
+        <strong>Catálogo:</strong>
+        <select id="agregarCatalogo">
+          <option value="">--Seleccione categoría primero--</option>
+        </select>
+      </div>
+
+      <div class="detalle-item">
+        <strong>Detalle:</strong>
+        <textarea id="agregarDescripcion" placeholder="Ingrese detalle"></textarea>
+      </div>
+
+      <div class="detalle-item">
+        <strong>Fecha:</strong>
+        <input type="date" id="agregarFecha">
+      </div>
+
       <div class="modal-buttons">
         <button id="btnGuardarPersona">Guardar</button>
         <button onclick="cerrarModalAgregar()">Cancelar</button>
