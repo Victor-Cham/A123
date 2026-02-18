@@ -124,15 +124,24 @@ function mostrarDetalle() {
     nivelMax === 1 ? "orange" :
     "green";
 
-  // Detalles
+  // Detalles mejorados: incluyen categoría y catálogo
   const cont = document.getElementById("detDescripcion");
 
   if (!personaActual.detalles || personaActual.detalles.length === 0) {
     cont.textContent = "Sin registros.";
   } else {
     cont.innerHTML = personaActual.detalles
-      .map(d => `• ${d.descripcion} (${formatearFecha(d.fecha)})`)
-      .join("<br>");
+      .map(d => `
+        <div class="detalle-item-modal">
+          <strong>${d.tipo_descripcion} (${d.tipo_codigo})</strong><br>
+          Categoria: <em>${d.categoria || "N/A"}</em><br>
+          Catálogo: <em>${d.catalogo || "N/A"}</em><br>
+          Detalle: ${d.descripcion || "-"}<br>
+          Fecha: ${formatearFecha(d.fecha)}
+        </div>
+        <hr>
+      `)
+      .join("");
   }
 
   // Abrir modal de detalle
