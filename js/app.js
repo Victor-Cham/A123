@@ -169,6 +169,9 @@ function cerrarModalAgregar() {
   document.getElementById("modalAgregar").style.display = "none";
 }
 
+/* ===============================
+   GUARDAR PERSONA (POST JSON)
+=============================== */
 async function guardarPersona() {
   const nombre = document.getElementById("nuevoNombre").value.trim();
   const documento = document.getElementById("nuevoDocumento").value.trim();
@@ -180,7 +183,17 @@ async function guardarPersona() {
   }
 
   try {
-    const res = await fetch(`${API_URL}?accion=agregar&nombre=${encodeURIComponent(nombre)}&documento=${encodeURIComponent(documento)}&empresa=${encodeURIComponent(empresa)}`);
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        accion: "agregar",
+        nombre: nombre,
+        documento: documento,
+        empresa: empresa
+      })
+    });
+
     const data = await res.json();
 
     if (data.exito) {
