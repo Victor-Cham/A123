@@ -52,39 +52,95 @@ document.getElementById("agregarCategoria")?.addEventListener("change", async fu
    BUSCAR PERSONA
 =============================== */
 async function buscar() {
-  const documento = document.getElementById("dni").value.trim();
+  const criterio = document.getElementById("dni").value.trim().toLowerCase();
   const tbody = document.querySelector("#tablaResultado tbody");
 
-  if (!documento) return;
+  if (!criterio) return;
 
   tbody.innerHTML = `<tr><td colspan="4">Buscando...</td></tr>`;
 
   try {
-    const res = await fetch(`${API_URL}?documento=${encodeURIComponent(documento)}`);
+    // Traemos todos los registros (tu API actual)
+    const res = await fetch(API_URL);
     const data = await res.json();
 
-    if (!data.encontrado) {
+    // 🔎 Filtrar por nombre o DNI parcial
+    const filtrados = data.filter(r =>
+      (r.documento && r.documento.includes(criterio)) ||
+      (r.nombre && r.nombre.toLowerCase().includes(criterio))
+    );
+
+    if (filtrados.length === 0) {
       personaActual = null;
-      tbody.innerHTML = `<tr><td colspan="4">Persona no encontrada</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4">Sin resultados</td></tr>`;
       return;
     }
 
-    personaActual = data;
+    // 🧠 Agrupar por DNI
+    const agrupados = {};
 
-    tbody.innerHTML = `
-      <tr>
-        <td>${data.persona.nombre}</td>
-        <td>${data.persona.documento}</td>
-        <td>${data.persona.empresa}</td>
+    filtrados.forEach(reg => {
+      if (!agrupados[reg.documento]) {
+        agrupados[reg.documento] = [];
+      }
+      agrupados[reg.documento].push(reg);
+    });
+
+    tbody.innerHTML = "";
+
+    // 🎯 Pintar UNA FILA por DNI
+    Object.keys(agrupados).forEach(dni => {
+
+      const registros = agrupados[dni];
+      const personaBase = registros[0];
+
+      // 🚦 Calcular semáforo por categoría
+      let estadoFinal = "VERDE";
+
+      const tieneAntecedente = registros.some(r =>
+        r.categoria &&
+        r.categoria.toUpperCase().includes("ANTECEDENTE")
+      );
+
+      const tieneLaboral = registros.some(r =>
+        r.categoria &&
+        r.categoria.toUpperCase().includes("LABORAL")
+      );
+
+      if (tieneAntecedente) {
+        estadoFinal = "ROJO";
+      } else if (tieneLaboral) {
+        estadoFinal = "AMARILLO";
+      }
+
+      // Crear estructura compatible con tu modal actual
+      const personaAgrupada = {
+        persona: personaBase,
+        detalles: registros
+      };
+
+      const fila = document.createElement("tr");
+
+      fila.innerHTML = `
+        <td>${personaBase.nombre}</td>
+        <td>${dni}</td>
+        <td>${personaBase.empresa}</td>
         <td>
           <span class="semaforo"
                 title="Ver detalle"
-                style="background:${colorSemaforo(data.estado)}"
-                onclick="abrirModalSeguridad()">
+                style="background:${colorSemaforo(estadoFinal)}">
           </span>
         </td>
-      </tr>
-    `;
+      `;
+
+      // Al hacer click se carga el historial en el modal
+      fila.addEventListener("click", () => {
+        personaActual = personaAgrupada;
+        abrirModalSeguridad();
+      });
+
+      tbody.appendChild(fila);
+    });
 
   } catch (error) {
     tbody.innerHTML = `<tr><td colspan="4">Error de conexión</td></tr>`;
