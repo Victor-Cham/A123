@@ -60,70 +60,99 @@ async function buscar() {
   const query = normalizar(queryRaw);
   const esNumero = /^[0-9]+$/.test(query);
 
-  let resultados = registrosPersonas.map(p => {
-    let score = 0;
+  // 1️⃣ Filtrar coincidencias
+  const coincidencias = registrosPersonas.filter(p => {
     const doc = normalizar(p.DOCUMENTO);
     const nombre = normalizar(p.NOMBRE);
 
-    if (esNumero) {
-      if (doc === query) score = 100;
-      else if (doc.startsWith(query)) score = 80;
-      else if (doc.includes(query)) score = 60;
-    } else {
-      if (nombre === query) score = 95;
-      else if (nombre.startsWith(query)) score = 80;
-      else if (nombre.includes(query)) score = 60;
-    }
+    if (esNumero) return doc.includes(query);
+    return nombre.includes(query);
+  });
 
-    return { ...p, score };
-  })
-  .filter(p => p.score > 0)
-  .sort((a, b) => b.score - a.score);
-
-  if (resultados.length === 0) {
+  if (coincidencias.length === 0) {
     personaActual = null;
     tbody.innerHTML = `<tr><td colspan="5">Sin coincidencias</td></tr>`;
     return;
   }
 
-  personaActual = resultados[0];
+  // 2️⃣ Agrupar por DNI
+  const agrupados = {};
 
-  tbody.innerHTML = resultados.slice(0, 5).map((persona, index) => `
+  coincidencias.forEach(p => {
+    if (!agrupados[p.DOCUMENTO]) {
+      agrupados[p.DOCUMENTO] = [];
+    }
+    agrupados[p.DOCUMENTO].push(p);
+  });
+
+  const resultadosAgrupados = Object.values(agrupados);
+
+  // 3️⃣ Render tabla agrupada
+  // 3️⃣ Render tabla agrupada
+tbody.innerHTML = resultadosAgrupados.map((grupo, index) => {
+
+  const persona = grupo[0];
+  const { color, codigo } = colorSemaforoPorRegistros(grupo);
+
+  return `
     <tr>
       <td>${persona.NOMBRE}</td>
       <td>${persona.DOCUMENTO}</td>
       <td>${persona.EMPRESA}</td>
       <td>
         <span class="semaforo"
-              style="background:${colorSemaforo(persona.CATEGORIA)}"
-              onclick="seleccionarPersona(${index})">
+              style="background:${color}"
+              onclick="seleccionarGrupo(${index})">
         </span>
       </td>
-      <td>${persona.CODIGO_UNICO || "-"}</td>
+      <td>${codigo}</td>
     </tr>
-  `).join("");
+  `;
+}).join("");
 
-  window.resultadosBusqueda = resultados;
+   
+
+  window.gruposBusqueda = resultadosAgrupados;
 }
 
 /* ===============================
    SELECCIONAR PERSONA RESULTADO
 ============================== */
-function seleccionarPersona(index) {
-  personaActual = window.resultadosBusqueda[index];
+function seleccionarGrupo(index) {
+  personaActual = window.gruposBusqueda[index];
   abrirModalSeguridad();
 }
 
 /* ===============================
    SEMAFORO POR CATEGORIA
 ============================== */
-function colorSemaforo(categoria) {
-  if (!categoria || categoria.trim() === "") return "green";
+function colorSemaforoPorRegistros(registros) {
+  if (!registros || registros.length === 0) return { color: "green", nivel: 3, codigo: "-" };
 
-  const cat = normalizar(categoria);
-  if (cat === "PENALES Y JUDICIALES") return "red";
-  if (cat === "LABORALES") return "orange";
-  return "green";
+  let tienePenal = false;
+  let tieneLaboral = false;
+  let codigoPenal = null;
+  let codigoLaboral = null;
+
+  registros.forEach(r => {
+    const cat = normalizar(r.CATEGORIA);
+    const codigo = r.CODIGO_UNICO || "-";
+
+    if (cat.includes("PENAL") || cat.includes("JUDICIAL")) {
+      tienePenal = true;
+      if (!codigoPenal) codigoPenal = codigo;
+    }
+
+    if (cat.includes("LABORAL")) {
+      tieneLaboral = true;
+      if (!codigoLaboral) codigoLaboral = codigo;
+    }
+  });
+
+  if (tienePenal) return { color: "red", nivel: 1, codigo: codigoPenal };
+  if (tieneLaboral) return { color: "orange", nivel: 2, codigo: codigoLaboral };
+
+  return { color: "green", nivel: 3, codigo: registros[0].CODIGO_UNICO || "-" };
 }
 
 /* ===============================
@@ -151,38 +180,52 @@ function cerrarModalSeguridad() {
 }
 
 /* ===============================
+   CERRAR MODAL DETALLE
+============================== */
+function cerrarModalDetalle() {
+  const modal = document.getElementById("modalDetalle");
+  if (!modal) return;
+  modal.style.display = "none";
+}
+
+/* ===============================
    MODAL DETALLE
 ============================== */
 function mostrarDetalle() {
-  const p = personaActual;
-  if (!p) return;
+  const registros = personaActual;
+  if (!registros || registros.length === 0) return;
 
-  document.getElementById("detNombre").textContent = p.NOMBRE;
-  document.getElementById("detDocumento").textContent = p.DOCUMENTO;
-  document.getElementById("detEmpresa").textContent = p.EMPRESA;
+  const base = registros[0];
 
-  document.getElementById("detEstadoTexto").textContent =
-    !p.CATEGORIA ? "SIN REGISTRO" : p.CATEGORIA;
+  document.getElementById("detNombre").textContent = base.NOMBRE;
+  document.getElementById("detDocumento").textContent = base.DOCUMENTO;
+  document.getElementById("detEmpresa").textContent = base.EMPRESA;
 
-  document.getElementById("detEstadoSemaforo").style.background =
-    colorSemaforo(p.CATEGORIA);
+const { color, nivel, codigo } = colorSemaforoPorRegistros(registros);
+
+document.getElementById("detEstadoSemaforo").style.background = color;
+document.getElementById("detEstadoTexto").textContent =
+  registros.length + " antecedente(s) encontrado(s)";
+
+//document.getElementById("detCodigoUnico").textContent = codigo; // opcional, si quieres mostrar aparte
 
   const cont = document.getElementById("detDescripcion");
-  cont.innerHTML = `
-    <div class="detalle-item-modal">
-      <strong>Categoría:</strong> ${p.CATEGORIA || "-"}<br>
-      <strong>Catálogo:</strong> ${p.CATALOGO || "-"}<br>
-      <strong>Detalle:</strong> ${p.DESCRIPCION || "-"}<br>
-      <strong>Fecha:</strong> ${formatearFecha(p.FECHA)}<br>
-      <strong>Archivo:</strong> ${p.ARCHIVO ? `<a href="${p.ARCHIVO}" target="_blank">Ver archivo</a>` : "-"}
-    </div>
-  `;
+
+  cont.innerHTML = registros
+    .sort((a, b) => new Date(b.FECHA) - new Date(a.FECHA))
+    .map(p => `
+      <div class="detalle-item-modal"
+           style="margin-bottom:15px;padding:10px;border-bottom:1px solid #ddd;">
+        <strong>Categoría:</strong> ${p.CATEGORIA || "-"}<br>
+        <strong>Catálogo:</strong> ${p.CATALOGO || "-"}<br>
+        <strong>Detalle:</strong> ${p.DESCRIPCION || "-"}<br>
+        <strong>Fecha:</strong> ${formatearFecha(p.FECHA)}<br>
+        <strong>Código:</strong> ${p.CODIGO_UNICO || "-"}<br>
+        <strong>Archivo:</strong> ${p.ARCHIVO ? `<a href="${p.ARCHIVO}" target="_blank">Ver archivo</a>` : "-"}
+      </div>
+    `).join("");
 
   document.getElementById("modalDetalle").style.display = "flex";
-}
-
-function cerrarModalDetalle() {
-  document.getElementById("modalDetalle").style.display = "none";
 }
 
 /* ===============================
