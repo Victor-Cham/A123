@@ -2,7 +2,7 @@
    CONFIG
 ============================== */
 const API_URL = "https://script.google.com/macros/s/AKfycbyCF3QslyjMBHJOvVB9Y2JQ59nyQTHIJN6CLL-MeJqnkkBMFz4BY1NSLCsSM0xSgS3s/exec";
-const CLAVE_SEGURIDAD = "hola";
+const CLAVE_SEGURIDAD = "A123";
 
 let personaActual = null;
 let registrosPersonas = [];
