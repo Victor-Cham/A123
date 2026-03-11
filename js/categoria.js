@@ -115,7 +115,7 @@ window.categorias = [
       "Omisión Asistencia Familiar ",
       "Omisión Asistencia Familiar, Deserción",
       "Omisión Asistencia Familiar, Homicidio Simple",
-      "Omisión Asistencia Familiar; Deserción",
+      "Omisión de Asistencia Familiar; Desobediencia y Resistencia a la Autoridad;Lesiones Leves por Violencia Familiar",
       "Omisión Asistencia Familiar; Lesiones Graves",
       "Omisión Asistencia Familiar; Lesiones Leves; Violación Libertad Sexual",
       "Omisión Asistencia Familiar; Peligro Común",
