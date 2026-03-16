@@ -89,6 +89,7 @@ window.categorias = [
       "Hurto",
       "Hurto Agravado",
       "Hurto Agravado; Deserción",
+      "Hurto Agravado;Desobediencia y Resistencia a la Autoridad",
       "Hurto Agravado; Lesiones Leves",
       "Hurto Agravado; Lesiones Leves; Deserción",
       "Hurto Simple",
