@@ -88,6 +88,7 @@ window.categorias = [
       "Homicidio Simple; Omisión Asistencia Familiar",
       "Hurto",
       "Hurto Agravado",
+      "Hurto Agravado;Conducción en estado de ebriedad",
       "Hurto Agravado; Deserción",
       "Hurto Agravado;Desobediencia y Resistencia a la Autoridad",
       "Hurto Agravado; Lesiones Leves",
@@ -168,6 +169,7 @@ window.categorias = [
       "Violación de Medidas Sanitaria",
       "Violación Libertad Sexual",
       "Violación Sexual",
+      "Violación Sexual de menor de edad",
       "Violencia Familiar (Maltrato Físico y Psicológico)",
       "Violencia Familiar (Maltrato Físico)"
     ]
