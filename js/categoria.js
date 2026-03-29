@@ -71,6 +71,7 @@ window.categorias = [
       "Falsedad Genérica",
       "Falsedad Genérica; Falsa declaración en procedimiento administrativo; Estafa",
       "Falsedad Ideológica",
+      "Falsedad Ideológica; Lesiones Leves por Violencia Familiar",
       "Falsedad Ideológica; Organización Criminal; Estafa Agravada",
       "Falsificación de Documentos",
       "Falsificación de Documentos; Falsedad Genérica",
