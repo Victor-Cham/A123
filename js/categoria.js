@@ -36,6 +36,7 @@ window.categorias = [
       "Coacción",
       "Coacción; Deserción",
       "Conducción de Vehículo en estado de ebriedad",
+      "Conducción en estado de ebriedad;Desobediencia y Resistencia a la Autoridad",
       "Conducir en estado de ebriedad",
       "Conducir en estado de ebriedad; Deserción",
       "Contra los derechos de autor",
@@ -138,6 +139,7 @@ window.categorias = [
       "Resistencia a la Autoridad",
       "Reuniones Extra Laborales en contra de MCP",
       "Robo",
+      "Robo;Acoso Sexual",
       "Robo Agravado",
       "Robo Agravado y Hurto Simple",
       "Robo Agravado; Peligro Común",
@@ -171,6 +173,7 @@ window.categorias = [
       "Violación Libertad Sexual",
       "Violación Sexual",
       "Violación Sexual de menor de edad",
+      "Violación Sexual de menor de edad;Lesiones Leves por Violencia Familiar",
       "Violencia Familiar (Maltrato Físico y Psicológico)",
       "Violencia Familiar (Maltrato Físico)"
     ]
