@@ -154,6 +154,7 @@ window.categorias = [
       "Terrorismo Agravado",
       "Tocamientos Indebidos",
       "Tocamientos, actos de connotación sexual o actos libidinosos sin Consentimiento",
+      "Tocamientos indebidos sin consentimiento",
       "Tocamientos indebidos sin consentimiento en agravio de menor de edad",
       "Tortura",
       "Tráfico Ilegal de Armas de Fuego",
