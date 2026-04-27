@@ -65,6 +65,7 @@ window.categorias = [
       "Deserción",
       "Desobediencia y Resistencia a la Autoridad",
       "Desobediencia y Resistencia a la Autoridad;Lesiones Culposas",
+      "Desobediencia y Resistencia a la Autoridad;Omisión de Asistencia Familiar",
       "Disturbios",
       "Estafa",
       "Estafa Agravada",
