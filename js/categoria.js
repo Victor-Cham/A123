@@ -7,6 +7,7 @@ window.categorias = [
       "Suplantación EMO",
       "Reuniones Extra Laborales en contra de MCP",
       "Incumplir Protocolo COVID-19",
+      "Incumplir Reglamento de Uso y Convivencia en Campamento",
       "Incumplimiento Políticas de Protección Empresarial",
       "Incumplimiento a la Política de Alcohol y Drogas",
       "Incumplido los reglamentos internos de su compañia"
