@@ -6,6 +6,57 @@ const CLAVE_SEGURIDAD = "A123";
 
 let personaActual = null;
 let registrosPersonas = [];
+let db;
+
+/* ===============================
+   INDEXEDDB INIT
+============================== */
+function abrirDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("miSistemaDB", 1);
+
+    request.onupgradeneeded = function (e) {
+      db = e.target.result;
+
+      if (!db.objectStoreNames.contains("personas")) {
+        db.createObjectStore("personas", { keyPath: "DOCUMENTO" });
+      }
+    };
+
+    request.onsuccess = function (e) {
+      db = e.target.result;
+      resolve(db);
+    };
+
+    request.onerror = function (e) {
+      reject(e);
+    };
+  });
+}
+
+function guardarEnDB(data) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("personas", "readwrite");
+    const store = tx.objectStore("personas");
+
+    data.forEach(item => {
+      store.put(item);
+    });
+
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject();
+  });
+}
+
+function obtenerTodasDB() {
+  return new Promise((resolve) => {
+    const tx = db.transaction("personas", "readonly");
+    const store = tx.objectStore("personas");
+    const request = store.getAll();
+
+    request.onsuccess = () => resolve(request.result || []);
+  });
+}
 
 /* ===============================
    NORMALIZAR TEXTO (SIN ACENTOS)
@@ -24,6 +75,14 @@ function normalizar(texto) {
 ============================== */
 async function cargarRegistros() {
   try {
+    const cache = await obtenerTodasDB();
+
+    // Si ya hay datos locales
+    if (cache && cache.length > 0) {
+      registrosPersonas = cache;
+      return;
+    }
+
     const res = await fetch(`${API_URL}?todos=true`);
     const data = await res.json();
 
@@ -32,10 +91,12 @@ async function cargarRegistros() {
         ...p,
         DOCUMENTO: (p.DOCUMENTO || "").toString()
       }));
-      localStorage.setItem("registrosPersonas", JSON.stringify(registrosPersonas));
+
+      await guardarEnDB(registrosPersonas);
     } else {
       registrosPersonas = [];
     }
+
   } catch (error) {
     registrosPersonas = [];
     console.error("Error al cargar registros:", error);
@@ -60,7 +121,6 @@ async function buscar() {
   const query = normalizar(queryRaw);
   const esNumero = /^[0-9]+$/.test(query);
 
-  // 1️⃣ Filtrar coincidencias
   const coincidencias = registrosPersonas.filter(p => {
     const doc = normalizar(p.DOCUMENTO);
     const nombre = normalizar(p.NOMBRE);
@@ -75,7 +135,6 @@ async function buscar() {
     return;
   }
 
-  // 2️⃣ Agrupar por DNI
   const agrupados = {};
 
   coincidencias.forEach(p => {
@@ -87,30 +146,26 @@ async function buscar() {
 
   const resultadosAgrupados = Object.values(agrupados);
 
-  // 3️⃣ Render tabla agrupada
-  // 3️⃣ Render tabla agrupada
-tbody.innerHTML = resultadosAgrupados.map((grupo, index) => {
+  tbody.innerHTML = resultadosAgrupados.map((grupo, index) => {
 
-  const persona = grupo[0];
-  const { color, codigo } = colorSemaforoPorRegistros(grupo);
+    const persona = grupo[0];
+    const { color, codigo } = colorSemaforoPorRegistros(grupo);
 
-  return `
-    <tr>
-      <td>${persona.NOMBRE}</td>
-      <td>${persona.DOCUMENTO}</td>
-      <td>${persona.EMPRESA}</td>
-      <td>
-        <span class="semaforo"
-              style="background:${color}"
-              onclick="seleccionarGrupo(${index})">
-        </span>
-      </td>
-      <td>${codigo}</td>
-    </tr>
-  `;
-}).join("");
-
-   
+    return `
+      <tr>
+        <td>${persona.NOMBRE}</td>
+        <td>${persona.DOCUMENTO}</td>
+        <td>${persona.EMPRESA}</td>
+        <td>
+          <span class="semaforo"
+                style="background:${color}"
+                onclick="seleccionarGrupo(${index})">
+          </span>
+        </td>
+        <td>${codigo}</td>
+      </tr>
+    `;
+  }).join("");
 
   window.gruposBusqueda = resultadosAgrupados;
 }
@@ -127,7 +182,8 @@ function seleccionarGrupo(index) {
    SEMAFORO POR CATEGORIA
 ============================== */
 function colorSemaforoPorRegistros(registros) {
-  if (!registros || registros.length === 0) return { color: "green", nivel: 3, codigo: "-" };
+  if (!registros || registros.length === 0)
+    return { color: "green", nivel: 3, codigo: "-" };
 
   let tienePenal = false;
   let tieneLaboral = false;
@@ -180,15 +236,6 @@ function cerrarModalSeguridad() {
 }
 
 /* ===============================
-   CERRAR MODAL DETALLE
-============================== */
-function cerrarModalDetalle() {
-  const modal = document.getElementById("modalDetalle");
-  if (!modal) return;
-  modal.style.display = "none";
-}
-
-/* ===============================
    MODAL DETALLE
 ============================== */
 function mostrarDetalle() {
@@ -201,21 +248,18 @@ function mostrarDetalle() {
   document.getElementById("detDocumento").textContent = base.DOCUMENTO;
   document.getElementById("detEmpresa").textContent = base.EMPRESA;
 
-const { color, nivel, codigo } = colorSemaforoPorRegistros(registros);
+  const { color } = colorSemaforoPorRegistros(registros);
 
-document.getElementById("detEstadoSemaforo").style.background = color;
-document.getElementById("detEstadoTexto").textContent =
-  registros.length + " antecedente(s) encontrado(s)";
-
-//document.getElementById("detCodigoUnico").textContent = codigo; // opcional, si quieres mostrar aparte
+  document.getElementById("detEstadoSemaforo").style.background = color;
+  document.getElementById("detEstadoTexto").textContent =
+    registros.length + " antecedente(s) encontrado(s)";
 
   const cont = document.getElementById("detDescripcion");
 
   cont.innerHTML = registros
     .sort((a, b) => new Date(b.FECHA) - new Date(a.FECHA))
     .map(p => `
-      <div class="detalle-item-modal"
-           style="margin-bottom:15px;padding:10px;border-bottom:1px solid #ddd;">
+      <div class="detalle-item-modal">
         <strong>Categoría:</strong> ${p.CATEGORIA || "-"}<br>
         <strong>Catálogo:</strong> ${p.CATALOGO || "-"}<br>
         <strong>Detalle:</strong> ${p.DESCRIPCION || "-"}<br>
@@ -229,92 +273,12 @@ document.getElementById("detEstadoTexto").textContent =
 }
 
 /* ===============================
-   MODAL AGREGAR PERSONA
+   GUARDAR PERSONA
 ============================== */
-function abrirModalAgregar() {
-  const modal = document.getElementById("modalAgregar");
-  if (!modal) return;
-
-  modal.style.display = "flex";
-
-  // Reset campos
-  document.getElementById("nuevoNombre").value = "";
-  document.getElementById("nuevoDocumento").value = "";
-  document.getElementById("nuevaEmpresa").value = "";
-  document.getElementById("agregarDescripcion").value = "";
-  document.getElementById("agregarFecha").value = "";
-  document.getElementById("mensajeErrorAgregar").textContent = "";
-
-  // Inicializar categorías y catálogos
-  if (typeof cargarCategorias === "function") {
-    cargarCategorias();
-  }
-
-  const selectCatalogo = document.getElementById("agregarCatalogo");
-  selectCatalogo.innerHTML = '<option value="">--Seleccione categoría primero--</option>';
-  selectCatalogo.disabled = true;
-}
-
-function cerrarModalAgregar() {
-  const modal = document.getElementById("modalAgregar");
-  if (!modal) return;
-  modal.style.display = "none";
-}
-
-/* ===============================
-   CATEGORÍAS Y CATÁLOGOS
-============================== */
-function cargarCategorias() {
-  const selectCategoria = document.getElementById("agregarCategoria");
-  selectCategoria.innerHTML = '<option value="">--Seleccione--</option>';
-
-  window.categorias?.forEach(cat => {
-    const option = document.createElement("option");
-    option.value = cat.nombre;
-    option.textContent = cat.nombre;
-    selectCategoria.appendChild(option);
-  });
-}
-
-function cargarCatalogos() {
-  const categoriaSeleccionada = document.getElementById("agregarCategoria").value;
-  const selectCatalogo = document.getElementById("agregarCatalogo");
-
-  selectCatalogo.innerHTML = '<option value="">--Seleccione--</option>';
-  selectCatalogo.disabled = true;
-
-  const categoria = window.categorias?.find(c => c.nombre === categoriaSeleccionada);
-  if (!categoria) return;
-
-  categoria.catalogos.forEach(item => {
-    const option = document.createElement("option");
-    option.value = item;
-    option.textContent = item;
-    selectCatalogo.appendChild(option);
-  });
-
-  selectCatalogo.disabled = false;
-}
-
-/* ===============================
-   GUARDAR PERSONA (CON ARCHIVO OPCIONAL)
-============================== */
-
 async function guardarPersona() {
   const nombre = document.getElementById("nuevoNombre").value.trim();
   const documento = document.getElementById("nuevoDocumento").value.trim();
   const empresa = document.getElementById("nuevaEmpresa").value.trim();
-  const categoria = document.getElementById("agregarCategoria").value;
-  const catalogo = document.getElementById("agregarCatalogo").value;
-  const descripcion = document.getElementById("agregarDescripcion").value.trim();
-  const fecha = document.getElementById("agregarFecha").value;
-  const archivoInput = document.getElementById("agregarArchivo");
-
-  if (!nombre || !documento || !empresa || !categoria || !catalogo || !descripcion || !fecha) {
-    document.getElementById("mensajeErrorAgregar").textContent =
-      "Todos los campos son obligatorios";
-    return;
-  }
 
   try {
     const params = new URLSearchParams();
@@ -322,20 +286,6 @@ async function guardarPersona() {
     params.append("NOMBRE", nombre);
     params.append("DOCUMENTO", documento);
     params.append("EMPRESA", empresa);
-    params.append("CATEGORIA", categoria);
-    params.append("CATALOGO", catalogo);
-    params.append("DESCRIPCION", descripcion);
-    params.append("FECHA", fecha);
-    params.append("usuarioregistra", "ADMIN");
-
-    if (archivoInput.files.length > 0) {
-      const file = archivoInput.files[0];
-      const base64 = await convertirABase64(file);
-
-      params.append("ARCHIVO_BASE64", base64);
-      params.append("ARCHIVO_NOMBRE", file.name);
-      params.append("ARCHIVO_TIPO", file.type);
-    }
 
     const response = await fetch(API_URL, {
       method: "POST",
@@ -344,71 +294,38 @@ async function guardarPersona() {
 
     const result = await response.json();
 
-    if (!result.success) {
-      throw new Error(result.error || "Error al registrar");
-    }
-
-    alert("Registro exitoso.\nCódigo generado: " + result.CODIGO_UNICO);
-
-    cerrarModalAgregar();
-
-    // Actualizar memoria local con el código real
     registrosPersonas.unshift({
       NOMBRE: nombre,
       DOCUMENTO: documento,
       EMPRESA: empresa,
-      CATEGORIA: categoria,
-      CATALOGO: catalogo,
-      DESCRIPCION: descripcion,
-      FECHA: fecha,
-      ARCHIVO: result.ARCHIVO || null,
       CODIGO_UNICO: result.CODIGO_UNICO
     });
 
-    localStorage.setItem("registrosPersonas", JSON.stringify(registrosPersonas));
-
-    document.getElementById("dni").value = documento;
-    buscar();
+    const tx = db.transaction("personas", "readwrite");
+    tx.objectStore("personas").put(registrosPersonas[0]);
 
   } catch (error) {
     console.error(error);
-    document.getElementById("mensajeErrorAgregar").textContent =
-      "Error de conexión o servidor";
   }
 }
 
-
-
-function convertirABase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result.split(",")[1]);
-    reader.onerror = error => reject(error);
-  });
-}
-
 /* ===============================
-   UTILIDADES
+   UTIL
 ============================== */
 function formatearFecha(fecha) {
   if (!fecha) return "";
-  const f = new Date(fecha);
-  return f.toLocaleDateString("es-PE");
+  return new Date(fecha).toLocaleDateString("es-PE");
 }
 
 /* ===============================
-   INICIO
+   INIT
 ============================== */
 window.addEventListener("DOMContentLoaded", async () => {
+  await abrirDB();
+  await cargarRegistros();
+
   document.getElementById("btnBuscar").addEventListener("click", buscar);
   document.getElementById("dni").addEventListener("keydown", e => {
     if (e.key === "Enter") buscar();
   });
-
-  document.getElementById("btnAgregar")?.addEventListener("click", abrirModalAgregar);
-  document.getElementById("btnGuardarPersona")?.addEventListener("click", guardarPersona);
-  document.getElementById("agregarCategoria")?.addEventListener("change", cargarCatalogos);
-
-  await cargarRegistros();
 });
