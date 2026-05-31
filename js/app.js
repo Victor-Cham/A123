@@ -9,28 +9,25 @@ let registrosPersonas = [];
 let db;
 
 /* ===============================
-   INDEXEDDB INIT
+   INDEXEDDB
 ============================== */
 function abrirDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("miSistemaDB", 1);
 
-    request.onupgradeneeded = function (e) {
+    request.onupgradeneeded = (e) => {
       db = e.target.result;
-
       if (!db.objectStoreNames.contains("personas")) {
         db.createObjectStore("personas", { keyPath: "DOCUMENTO" });
       }
     };
 
-    request.onsuccess = function (e) {
+    request.onsuccess = (e) => {
       db = e.target.result;
       resolve(db);
     };
 
-    request.onerror = function (e) {
-      reject(e);
-    };
+    request.onerror = reject;
   });
 }
 
@@ -39,12 +36,10 @@ function guardarEnDB(data) {
     const tx = db.transaction("personas", "readwrite");
     const store = tx.objectStore("personas");
 
-    data.forEach(item => {
-      store.put(item);
-    });
+    data.forEach(item => store.put(item));
 
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject();
+    tx.oncomplete = resolve;
+    tx.onerror = reject;
   });
 }
 
@@ -52,14 +47,14 @@ function obtenerTodasDB() {
   return new Promise((resolve) => {
     const tx = db.transaction("personas", "readonly");
     const store = tx.objectStore("personas");
-    const request = store.getAll();
+    const req = store.getAll();
 
-    request.onsuccess = () => resolve(request.result || []);
+    req.onsuccess = () => resolve(req.result || []);
   });
 }
 
 /* ===============================
-   NORMALIZAR TEXTO
+   NORMALIZAR
 ============================== */
 function normalizar(texto) {
   return (texto || "")
@@ -71,19 +66,21 @@ function normalizar(texto) {
 }
 
 /* ===============================
-   CARGA DE REGISTROS
+   CARGA ROBUSTA (FIX REAL)
 ============================== */
 async function cargarRegistros() {
   try {
     const cache = await obtenerTodasDB();
 
+    // ✔ USAR CACHE SI EXISTE
     if (cache && cache.length > 0) {
       registrosPersonas = cache;
-      console.log("📦 Usando IndexedDB:", cache.length);
+      console.log("📦 IndexedDB:", cache.length);
       return;
     }
 
-    console.log("🌐 Cargando desde API...");
+    // ❗ SI NO HAY CACHE → IR A API
+    console.log("🌐 API Google Sheets...");
 
     const res = await fetch(`${API_URL}?todos=true`);
     const data = await res.json();
@@ -95,13 +92,12 @@ async function cargarRegistros() {
       }));
 
       await guardarEnDB(registrosPersonas);
-    } else {
-      registrosPersonas = [];
+      console.log("💾 Guardado en IndexedDB");
     }
 
-  } catch (error) {
+  } catch (err) {
+    console.error("Error carga:", err);
     registrosPersonas = [];
-    console.error("Error al cargar registros:", error);
   }
 }
 
@@ -109,10 +105,10 @@ async function cargarRegistros() {
    BUSQUEDA
 ============================== */
 async function buscar() {
-  const queryRaw = document.getElementById("dni").value.trim();
+  const q = document.getElementById("dni").value.trim();
   const tbody = document.querySelector("#tablaResultado tbody");
 
-  if (!queryRaw) return;
+  if (!q) return;
 
   tbody.innerHTML = `<tr><td colspan="5">Buscando...</td></tr>`;
 
@@ -120,62 +116,55 @@ async function buscar() {
     await cargarRegistros();
   }
 
-  const query = normalizar(queryRaw);
+  const query = normalizar(q);
   const esNumero = /^[0-9]+$/.test(query);
 
   const coincidencias = registrosPersonas.filter(p => {
     const doc = normalizar(p.DOCUMENTO);
-    const nombre = normalizar(p.NOMBRE);
-
-    return esNumero ? doc.includes(query) : nombre.includes(query);
+    const nom = normalizar(p.NOMBRE);
+    return esNumero ? doc.includes(query) : nom.includes(query);
   });
 
   if (coincidencias.length === 0) {
-    personaActual = null;
     tbody.innerHTML = `<tr><td colspan="5">Sin coincidencias</td></tr>`;
     return;
   }
 
-  const agrupados = {};
-
+  const grupos = {};
   coincidencias.forEach(p => {
-    if (!agrupados[p.DOCUMENTO]) {
-      agrupados[p.DOCUMENTO] = [];
-    }
-    agrupados[p.DOCUMENTO].push(p);
+    grupos[p.DOCUMENTO] = grupos[p.DOCUMENTO] || [];
+    grupos[p.DOCUMENTO].push(p);
   });
 
-  const resultadosAgrupados = Object.values(agrupados);
+  const lista = Object.values(grupos);
 
-  tbody.innerHTML = resultadosAgrupados.map((grupo, index) => {
-
-    const persona = grupo[0];
-    const { color, codigo } = colorSemaforoPorRegistros(grupo);
+  tbody.innerHTML = lista.map((grupo, i) => {
+    const p = grupo[0];
+    const { color } = colorSemaforoPorRegistros(grupo);
 
     return `
       <tr>
-        <td>${persona.NOMBRE}</td>
-        <td>${persona.DOCUMENTO}</td>
-        <td>${persona.EMPRESA}</td>
+        <td>${p.NOMBRE}</td>
+        <td>${p.DOCUMENTO}</td>
+        <td>${p.EMPRESA}</td>
         <td>
           <span class="semaforo"
                 style="background:${color}"
-                onclick="seleccionarGrupo(${index})">
-          </span>
+                onclick="seleccionarGrupo(${i})"></span>
         </td>
-        <td>${codigo}</td>
+        <td>${grupo[0].CODIGO_UNICO || "-"}</td>
       </tr>
     `;
   }).join("");
 
-  window.gruposBusqueda = resultadosAgrupados;
+  window.gruposBusqueda = lista;
 }
 
 /* ===============================
    SELECCIÓN
 ============================== */
-function seleccionarGrupo(index) {
-  personaActual = window.gruposBusqueda[index];
+function seleccionarGrupo(i) {
+  personaActual = window.gruposBusqueda[i];
   abrirModalSeguridad();
 }
 
@@ -183,141 +172,38 @@ function seleccionarGrupo(index) {
    SEMAFORO
 ============================== */
 function colorSemaforoPorRegistros(registros) {
-  if (!registros || registros.length === 0)
-    return { color: "green", nivel: 3, codigo: "-" };
-
-  let tienePenal = false;
-  let tieneLaboral = false;
-  let codigoPenal = null;
-  let codigoLaboral = null;
+  let penal = false;
+  let laboral = false;
 
   registros.forEach(r => {
     const cat = normalizar(r.CATEGORIA);
-    const codigo = r.CODIGO_UNICO || "-";
 
-    if (cat.includes("PENAL") || cat.includes("JUDICIAL")) {
-      tienePenal = true;
-      if (!codigoPenal) codigoPenal = codigo;
-    }
-
-    if (cat.includes("LABORAL")) {
-      tieneLaboral = true;
-      if (!codigoLaboral) codigoLaboral = codigo;
-    }
+    if (cat.includes("PENAL") || cat.includes("JUDICIAL")) penal = true;
+    if (cat.includes("LABORAL")) laboral = true;
   });
 
-  if (tienePenal) return { color: "red", nivel: 1, codigo: codigoPenal };
-  if (tieneLaboral) return { color: "orange", nivel: 2, codigo: codigoLaboral };
-
-  return { color: "green", nivel: 3, codigo: registros[0].CODIGO_UNICO || "-" };
+  if (penal) return { color: "red" };
+  if (laboral) return { color: "orange" };
+  return { color: "green" };
 }
 
 /* ===============================
-   MODAL SEGURIDAD
+   MODALES (IMPORTANTE)
 ============================== */
-function abrirModalSeguridad() {
-  if (!personaActual) return;
-  document.getElementById("codigoAcceso").value = "";
-  document.getElementById("mensajeError").textContent = "";
-  document.getElementById("modal").style.display = "flex";
+function abrirModalAgregar() {
+  const m = document.getElementById("modalAgregar");
+  if (m) m.style.display = "flex";
 }
 
-function validarCodigo() {
-  const codigo = document.getElementById("codigoAcceso").value;
-
-  if (codigo === CLAVE_SEGURIDAD) {
-    cerrarModalSeguridad();
-    mostrarDetalle();
-  } else {
-    document.getElementById("mensajeError").textContent = "Código incorrecto";
-  }
-}
-
-function cerrarModalSeguridad() {
-  document.getElementById("modal").style.display = "none";
-}
-
-/* ===============================
-   DETALLE
-============================== */
-function mostrarDetalle() {
-  const registros = personaActual;
-  if (!registros || registros.length === 0) return;
-
-  const base = registros[0];
-
-  document.getElementById("detNombre").textContent = base.NOMBRE;
-  document.getElementById("detDocumento").textContent = base.DOCUMENTO;
-  document.getElementById("detEmpresa").textContent = base.EMPRESA;
-
-  const { color } = colorSemaforoPorRegistros(registros);
-
-  document.getElementById("detEstadoSemaforo").style.background = color;
-  document.getElementById("detEstadoTexto").textContent =
-    registros.length + " antecedente(s) encontrado(s)";
-
-  const cont = document.getElementById("detDescripcion");
-
-  cont.innerHTML = registros
-    .sort((a, b) => new Date(b.FECHA) - new Date(a.FECHA))
-    .map(p => `
-      <div class="detalle-item-modal">
-        <strong>Categoría:</strong> ${p.CATEGORIA || "-"}<br>
-        <strong>Catálogo:</strong> ${p.CATALOGO || "-"}<br>
-        <strong>Detalle:</strong> ${p.DESCRIPCION || "-"}<br>
-        <strong>Fecha:</strong> ${formatearFecha(p.FECHA)}<br>
-        <strong>Código:</strong> ${p.CODIGO_UNICO || "-"}<br>
-        <strong>Archivo:</strong> ${p.ARCHIVO ? `<a href="${p.ARCHIVO}" target="_blank">Ver archivo</a>` : "-"}
-      </div>
-    `).join("");
-
-  document.getElementById("modalDetalle").style.display = "flex";
-}
-
-/* ===============================
-   GUARDAR PERSONA
-============================== */
-async function guardarPersona() {
-  const nombre = document.getElementById("nuevoNombre").value.trim();
-  const documento = document.getElementById("nuevoDocumento").value.trim();
-  const empresa = document.getElementById("nuevaEmpresa").value.trim();
-
-  const params = new URLSearchParams();
-  params.append("NOMBRE", nombre);
-  params.append("DOCUMENTO", documento);
-  params.append("EMPRESA", empresa);
-
-  const response = await fetch(API_URL, {
-    method: "POST",
-    body: params
-  });
-
-  const result = await response.json();
-
-  registrosPersonas.unshift({
-    NOMBRE: nombre,
-    DOCUMENTO: documento,
-    EMPRESA: empresa,
-    CODIGO_UNICO: result.CODIGO_UNICO
-  });
-
-  const tx = db.transaction("personas", "readwrite");
-  tx.objectStore("personas").put(registrosPersonas[0]);
-}
-
-/* ===============================
-   UTIL
-============================== */
-function formatearFecha(fecha) {
-  if (!fecha) return "";
-  return new Date(fecha).toLocaleDateString("es-PE");
+function cerrarModalAgregar() {
+  const m = document.getElementById("modalAgregar");
+  if (m) m.style.display = "none";
 }
 
 /* ===============================
    INIT
 ============================== */
 window.addEventListener("DOMContentLoaded", async () => {
-
   await abrirDB();
   await cargarRegistros();
 
@@ -326,8 +212,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (e.key === "Enter") buscar();
   });
 
-  // 🔥 BOTONES RESTAURADOS
   document.getElementById("btnAgregar")?.addEventListener("click", abrirModalAgregar);
-  document.getElementById("btnGuardarPersona")?.addEventListener("click", guardarPersona);
-  document.getElementById("agregarCategoria")?.addEventListener("change", cargarCatalogos);
 });
