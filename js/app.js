@@ -6,10 +6,10 @@ const CLAVE_SEGURIDAD = "A123";
 
 let personaActual = null;
 let registrosPersonas = [];
-let db;
+let db = null;
 
 /* ===============================
-   INDEXEDDB
+   INDEXEDDB (CACHE OPCIONAL)
 ============================== */
 function abrirDB() {
   return new Promise((resolve, reject) => {
@@ -32,32 +32,19 @@ function abrirDB() {
 }
 
 function guardarEnDB(data) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction("personas", "readwrite");
-    const store = tx.objectStore("personas");
+  if (!db) return;
 
-    data.forEach(item => store.put(item));
+  const tx = db.transaction("personas", "readwrite");
+  const store = tx.objectStore("personas");
 
-    tx.oncomplete = resolve;
-    tx.onerror = reject;
-  });
-}
-
-function obtenerTodasDB() {
-  return new Promise((resolve) => {
-    const tx = db.transaction("personas", "readonly");
-    const store = tx.objectStore("personas");
-    const req = store.getAll();
-
-    req.onsuccess = () => resolve(req.result || []);
-  });
+  data.forEach(item => store.put(item));
 }
 
 /* ===============================
-   NORMALIZAR
+   TEXTO NORMALIZADO
 ============================== */
-function normalizar(texto) {
-  return (texto || "")
+function normalizar(t) {
+  return (t || "")
     .toString()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -66,102 +53,96 @@ function normalizar(texto) {
 }
 
 /* ===============================
-   CARGA ROBUSTA (FIX REAL)
+   CARGAR REGISTROS
 ============================== */
 async function cargarRegistros() {
   try {
-    const cache = await obtenerTodasDB();
-
-    // ✔ USAR CACHE SI EXISTE
-    if (cache && cache.length > 0) {
-      registrosPersonas = cache;
-      console.log("📦 IndexedDB:", cache.length);
-      return;
-    }
-
-    // ❗ SI NO HAY CACHE → IR A API
-    console.log("🌐 API Google Sheets...");
+    console.log("📡 Cargando datos...");
 
     const res = await fetch(`${API_URL}?todos=true`);
     const data = await res.json();
 
-    if (Array.isArray(data)) {
-      registrosPersonas = data.map(p => ({
-        ...p,
-        DOCUMENTO: (p.DOCUMENTO || "").toString()
-      }));
-
-      await guardarEnDB(registrosPersonas);
-      console.log("💾 Guardado en IndexedDB");
+    if (!Array.isArray(data)) {
+      registrosPersonas = [];
+      return;
     }
 
+    registrosPersonas = data.map(p => ({
+      ...p,
+      DOCUMENTO: (p.DOCUMENTO || "").toString()
+    }));
+
+    guardarEnDB(registrosPersonas);
+
+    console.log("✅ Datos cargados:", registrosPersonas.length);
+
   } catch (err) {
-    console.error("Error carga:", err);
-    registrosPersonas = [];
+    console.error("Error API:", err);
   }
 }
 
 /* ===============================
-   BUSQUEDA
+   BUSCAR
 ============================== */
 async function buscar() {
-  const q = document.getElementById("dni").value.trim();
+  const queryRaw = document.getElementById("dni")?.value?.trim();
   const tbody = document.querySelector("#tablaResultado tbody");
 
-  if (!q) return;
+  if (!queryRaw) return;
 
   tbody.innerHTML = `<tr><td colspan="5">Buscando...</td></tr>`;
+
+  const query = normalizar(queryRaw);
+  const esNumero = /^[0-9]+$/.test(query);
 
   if (registrosPersonas.length === 0) {
     await cargarRegistros();
   }
 
-  const query = normalizar(q);
-  const esNumero = /^[0-9]+$/.test(query);
-
   const coincidencias = registrosPersonas.filter(p => {
     const doc = normalizar(p.DOCUMENTO);
-    const nom = normalizar(p.NOMBRE);
-    return esNumero ? doc.includes(query) : nom.includes(query);
+    const nombre = normalizar(p.NOMBRE);
+
+    return esNumero ? doc.includes(query) : nombre.includes(query);
   });
 
-  if (coincidencias.length === 0) {
+  if (!coincidencias.length) {
     tbody.innerHTML = `<tr><td colspan="5">Sin coincidencias</td></tr>`;
     return;
   }
 
   const grupos = {};
   coincidencias.forEach(p => {
-    grupos[p.DOCUMENTO] = grupos[p.DOCUMENTO] || [];
+    if (!grupos[p.DOCUMENTO]) grupos[p.DOCUMENTO] = [];
     grupos[p.DOCUMENTO].push(p);
   });
 
-  const lista = Object.values(grupos);
+  const resultado = Object.values(grupos);
 
-  tbody.innerHTML = lista.map((grupo, i) => {
-    const p = grupo[0];
-    const { color } = colorSemaforoPorRegistros(grupo);
+  tbody.innerHTML = resultado.map((grupo, i) => {
+    const persona = grupo[0];
+    const { color, codigo } = colorSemaforoPorRegistros(grupo);
 
     return `
       <tr>
-        <td>${p.NOMBRE}</td>
-        <td>${p.DOCUMENTO}</td>
-        <td>${p.EMPRESA}</td>
+        <td>${persona.NOMBRE}</td>
+        <td>${persona.DOCUMENTO}</td>
+        <td>${persona.EMPRESA}</td>
         <td>
           <span class="semaforo"
-                style="background:${color}"
-                onclick="seleccionarGrupo(${i})"></span>
+            style="background:${color}"
+            onclick="seleccionarGrupo(${i})"></span>
         </td>
-        <td>${grupo[0].CODIGO_UNICO || "-"}</td>
+        <td>${codigo}</td>
       </tr>
     `;
   }).join("");
 
-  window.gruposBusqueda = lista;
+  window.gruposBusqueda = resultado;
 }
 
 /* ===============================
-   SELECCIÓN
+   SELECCION
 ============================== */
 function seleccionarGrupo(i) {
   personaActual = window.gruposBusqueda[i];
@@ -177,40 +158,155 @@ function colorSemaforoPorRegistros(registros) {
 
   registros.forEach(r => {
     const cat = normalizar(r.CATEGORIA);
-
-    if (cat.includes("PENAL") || cat.includes("JUDICIAL")) penal = true;
+    if (cat.includes("PENAL")) penal = true;
     if (cat.includes("LABORAL")) laboral = true;
   });
 
-  if (penal) return { color: "red" };
-  if (laboral) return { color: "orange" };
-  return { color: "green" };
+  if (penal) return { color: "red", codigo: "PENAL" };
+  if (laboral) return { color: "orange", codigo: "LABORAL" };
+  return { color: "green", codigo: "-" };
 }
 
 /* ===============================
-   MODALES (IMPORTANTE)
+   MODALES
 ============================== */
-function abrirModalAgregar() {
-  const m = document.getElementById("modalAgregar");
-  if (m) m.style.display = "flex";
+function abrirModalSeguridad() {
+  document.getElementById("modal").style.display = "flex";
 }
 
-function cerrarModalAgregar() {
-  const m = document.getElementById("modalAgregar");
-  if (m) m.style.display = "none";
+function validarCodigo() {
+  const code = document.getElementById("codigoAcceso").value;
+
+  if (code === CLAVE_SEGURIDAD) {
+    cerrarModalSeguridad();
+    mostrarDetalle();
+  } else {
+    document.getElementById("mensajeError").textContent = "Código incorrecto";
+  }
+}
+
+function cerrarModalSeguridad() {
+  document.getElementById("modal").style.display = "none";
+}
+
+/* ===============================
+   DETALLE
+============================== */
+function mostrarDetalle() {
+  const registros = personaActual;
+  const base = registros[0];
+
+  document.getElementById("detNombre").textContent = base.NOMBRE;
+  document.getElementById("detDocumento").textContent = base.DOCUMENTO;
+
+  const cont = document.getElementById("detDescripcion");
+
+  cont.innerHTML = registros.map(p => `
+    <div class="detalle-item-modal">
+      <b>${p.CATEGORIA}</b><br>
+      ${p.DESCRIPCION || ""}
+    </div>
+  `).join("");
+
+  document.getElementById("modalDetalle").style.display = "flex";
+}
+
+/* ===============================
+   GUARDAR PERSONA (FIX REAL)
+============================== */
+async function guardarPersona() {
+  try {
+    const nombre = document.getElementById("nuevoNombre").value.trim();
+    const documento = document.getElementById("nuevoDocumento").value.trim();
+    const empresa = document.getElementById("nuevaEmpresa").value.trim();
+
+    if (!nombre || !documento || !empresa) {
+      alert("Completa los campos");
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.append("NOMBRE", nombre);
+    params.append("DOCUMENTO", documento);
+    params.append("EMPRESA", empresa);
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: params
+    });
+
+    const result = await res.json();
+
+    alert("Guardado OK");
+
+    registrosPersonas.unshift({
+      NOMBRE: nombre,
+      DOCUMENTO: documento,
+      EMPRESA: empresa
+    });
+
+  } catch (err) {
+    console.error("Error guardar:", err);
+  }
+}
+
+/* ===============================
+   CATEGORIAS (FIX CLAVE)
+============================== */
+function cargarCategorias() {
+  const select = document.getElementById("agregarCategoria");
+
+  if (!select) return;
+
+  select.innerHTML = `<option value="">--Seleccione--</option>`;
+
+  if (!window.categorias || !Array.isArray(window.categorias)) {
+    console.warn("⚠ categorias no cargadas");
+    return;
+  }
+
+  window.categorias.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.nombre;
+    opt.textContent = c.nombre;
+    select.appendChild(opt);
+  });
+}
+
+function cargarCatalogos() {
+  const cat = document.getElementById("agregarCategoria")?.value;
+  const select = document.getElementById("agregarCatalogo");
+
+  if (!select) return;
+
+  select.innerHTML = `<option value="">--Seleccione--</option>`;
+
+  const categoria = window.categorias?.find(c => c.nombre === cat);
+  if (!categoria) return;
+
+  categoria.catalogos.forEach(x => {
+    const opt = document.createElement("option");
+    opt.value = x;
+    opt.textContent = x;
+    select.appendChild(opt);
+  });
 }
 
 /* ===============================
    INIT
 ============================== */
 window.addEventListener("DOMContentLoaded", async () => {
+  console.log("🚀 INIT APP");
+
   await abrirDB();
   await cargarRegistros();
 
-  document.getElementById("btnBuscar").addEventListener("click", buscar);
-  document.getElementById("dni").addEventListener("keydown", e => {
+  document.getElementById("btnBuscar")?.addEventListener("click", buscar);
+  document.getElementById("dni")?.addEventListener("keydown", e => {
     if (e.key === "Enter") buscar();
   });
 
   document.getElementById("btnAgregar")?.addEventListener("click", abrirModalAgregar);
+  document.getElementById("btnGuardarPersona")?.addEventListener("click", guardarPersona);
+  document.getElementById("agregarCategoria")?.addEventListener("change", cargarCatalogos);
 });
