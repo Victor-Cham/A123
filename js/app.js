@@ -59,7 +59,7 @@ function obtenerTodasDB() {
 }
 
 /* ===============================
-   NORMALIZAR TEXTO (SIN ACENTOS)
+   NORMALIZAR TEXTO
 ============================== */
 function normalizar(texto) {
   return (texto || "")
@@ -71,17 +71,19 @@ function normalizar(texto) {
 }
 
 /* ===============================
-   CARGA DE REGISTROS DESDE API
+   CARGA DE REGISTROS
 ============================== */
 async function cargarRegistros() {
   try {
     const cache = await obtenerTodasDB();
 
-    // Si ya hay datos locales
     if (cache && cache.length > 0) {
       registrosPersonas = cache;
+      console.log("📦 Usando IndexedDB:", cache.length);
       return;
     }
+
+    console.log("🌐 Cargando desde API...");
 
     const res = await fetch(`${API_URL}?todos=true`);
     const data = await res.json();
@@ -104,7 +106,7 @@ async function cargarRegistros() {
 }
 
 /* ===============================
-   BUSQUEDA INTELIGENTE
+   BUSQUEDA
 ============================== */
 async function buscar() {
   const queryRaw = document.getElementById("dni").value.trim();
@@ -125,8 +127,7 @@ async function buscar() {
     const doc = normalizar(p.DOCUMENTO);
     const nombre = normalizar(p.NOMBRE);
 
-    if (esNumero) return doc.includes(query);
-    return nombre.includes(query);
+    return esNumero ? doc.includes(query) : nombre.includes(query);
   });
 
   if (coincidencias.length === 0) {
@@ -171,7 +172,7 @@ async function buscar() {
 }
 
 /* ===============================
-   SELECCIONAR PERSONA RESULTADO
+   SELECCIÓN
 ============================== */
 function seleccionarGrupo(index) {
   personaActual = window.gruposBusqueda[index];
@@ -179,7 +180,7 @@ function seleccionarGrupo(index) {
 }
 
 /* ===============================
-   SEMAFORO POR CATEGORIA
+   SEMAFORO
 ============================== */
 function colorSemaforoPorRegistros(registros) {
   if (!registros || registros.length === 0)
@@ -223,6 +224,7 @@ function abrirModalSeguridad() {
 
 function validarCodigo() {
   const codigo = document.getElementById("codigoAcceso").value;
+
   if (codigo === CLAVE_SEGURIDAD) {
     cerrarModalSeguridad();
     mostrarDetalle();
@@ -236,7 +238,7 @@ function cerrarModalSeguridad() {
 }
 
 /* ===============================
-   MODAL DETALLE
+   DETALLE
 ============================== */
 function mostrarDetalle() {
   const registros = personaActual;
@@ -280,33 +282,27 @@ async function guardarPersona() {
   const documento = document.getElementById("nuevoDocumento").value.trim();
   const empresa = document.getElementById("nuevaEmpresa").value.trim();
 
-  try {
-    const params = new URLSearchParams();
+  const params = new URLSearchParams();
+  params.append("NOMBRE", nombre);
+  params.append("DOCUMENTO", documento);
+  params.append("EMPRESA", empresa);
 
-    params.append("NOMBRE", nombre);
-    params.append("DOCUMENTO", documento);
-    params.append("EMPRESA", empresa);
+  const response = await fetch(API_URL, {
+    method: "POST",
+    body: params
+  });
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      body: params
-    });
+  const result = await response.json();
 
-    const result = await response.json();
+  registrosPersonas.unshift({
+    NOMBRE: nombre,
+    DOCUMENTO: documento,
+    EMPRESA: empresa,
+    CODIGO_UNICO: result.CODIGO_UNICO
+  });
 
-    registrosPersonas.unshift({
-      NOMBRE: nombre,
-      DOCUMENTO: documento,
-      EMPRESA: empresa,
-      CODIGO_UNICO: result.CODIGO_UNICO
-    });
-
-    const tx = db.transaction("personas", "readwrite");
-    tx.objectStore("personas").put(registrosPersonas[0]);
-
-  } catch (error) {
-    console.error(error);
-  }
+  const tx = db.transaction("personas", "readwrite");
+  tx.objectStore("personas").put(registrosPersonas[0]);
 }
 
 /* ===============================
@@ -321,6 +317,7 @@ function formatearFecha(fecha) {
    INIT
 ============================== */
 window.addEventListener("DOMContentLoaded", async () => {
+
   await abrirDB();
   await cargarRegistros();
 
@@ -328,4 +325,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("dni").addEventListener("keydown", e => {
     if (e.key === "Enter") buscar();
   });
+
+  // 🔥 BOTONES RESTAURADOS
+  document.getElementById("btnAgregar")?.addEventListener("click", abrirModalAgregar);
+  document.getElementById("btnGuardarPersona")?.addEventListener("click", guardarPersona);
+  document.getElementById("agregarCategoria")?.addEventListener("change", cargarCatalogos);
 });
