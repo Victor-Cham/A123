@@ -42,6 +42,7 @@ window.categorias = [
       "Conducción en estado de ebriedad;Desobediencia y Resistencia a la Autoridad",
       "Conducir en estado de ebriedad",
       "Conducir en estado de ebriedad; Deserción",
+      "Conducción en estado de ebriedad;Estafa",
       "Conducir en Estado de Ebriedad;Homicidio Calificado",
       "Contra los derechos de autor",
       "Contrabando",
