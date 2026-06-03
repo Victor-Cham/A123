@@ -44,6 +44,7 @@ window.categorias = [
       "Conducir en estado de ebriedad; Deserción",
       "Conducción en estado de ebriedad;Estafa",
       "Conducir en Estado de Ebriedad;Homicidio Calificado",
+      "Conducción en estado de ebriedad;Violación Sexual de menor de edad",
       "Contra los derechos de autor",
       "Contrabando",
       "Corrupción",
