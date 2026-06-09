@@ -132,6 +132,7 @@ window.categorias = [
       "Lesiones Leves por Violencia Familiar",
       "Lesiones Leves por Violencia Familiar;Acoso",
       "Lesiones Leves por Violencia Familiar;Conducción en estado de ebriedad",
+      "Lesiones Leves por Violencia Familiar;Conducción en estado de ebriedad;Omisión de Asistencia Familiar",
       "Lesiones Leves por Violencia Familiar(formas agravadas)",
       "Lesiones Leves por Violencia Familiar;Desobediencia y Resistencia a la Autoridad",
       "Lesiones Leves por Violencia Familiar;Hurto Agravado",
