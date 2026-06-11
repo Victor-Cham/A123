@@ -27,6 +27,7 @@ window.categorias = [
       "Acoso",
       "Acoso;Lesiones Leves por Violencia Familiar",
       "Actos contra el pudor",
+      "Actos contra el Pudor en agravio de menor de edad",
       "Actos contra el Pudor en agravio de menor de edad;Lesiones Leves por Violencia Familiar;Conducción en estado de ebriedad",
       "Apropiación Ilícita",
       "Apropiación Ilícita y Estafa",
