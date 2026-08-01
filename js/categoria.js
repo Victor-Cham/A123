@@ -186,6 +186,7 @@ window.categorias = [
       "Omisión, rehusamiento o demora de actos funcionales",
       "Peculado",
       "Peligro Común",
+      "Peligro Común;Lesiones leves; Daño simple",
       "Peligro Común;Desobediencia y Resistencia a la Autoridad",
       "Presunta Violación Sexual",
       "Proxenetismo",
