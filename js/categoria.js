@@ -197,6 +197,7 @@ window.categorias = [
       "Robo;Acoso Sexual",
       "Robo Agravado",
       "Robo Agravado;Lesiones Leves por Violencia Familiar",
+      "Robo Agravado;Lesiones Culposas",
       "Robo Agravado;Hurto Agravado",
       "Robo Agravado;Hurto Agravado;Desobediencia y Resistencia a la Autoridad;Lesiones Leves por Violencia Familiar",
       "Robo Agravado y Hurto Simple",
