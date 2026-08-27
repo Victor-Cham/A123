@@ -157,6 +157,7 @@ window.categorias = [
       "Lesiones Leves por Violencia Familiar(formas agravadas)",
       "Lesiones Leves por Violencia Familiar;Daño Agravado",
       "Lesiones Leves por Violencia Familiar;Desobediencia y Resistencia a la Autoridad",
+      "Lesiones Leves por Violencia Familiar;Homicidio",
       "Lesiones Leves por Violencia Familiar;Homicidio Culposo",
       "Lesiones Leves por Violencia Familiar;Hurto Agravado",
       "Lesiones Leves por Violencia Familiar;Hurto Simple",
