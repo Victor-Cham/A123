@@ -114,6 +114,7 @@ window.categorias = [
       "Homicidio Simple",
       "Homicidio Simple; Lesiones culposas",
       "Homicidio Simple; Omisión Asistencia Familiar",
+      "Homicidio Simple;Tenencia Ilegal de Arma de Fuego",
       "Hurto",
       "Hurto Agravado",
       "Hurto Agravado;Conducción en estado de ebriedad",
