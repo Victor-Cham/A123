@@ -210,6 +210,7 @@ window.categorias = [
       "Suplantación EMO",
       "Sustracción de Menor; Omisión Asistencia Familiar",
       "Tenencia Ilegal de Armas de Fuego",
+      "Tenencia Ilegal de Arma de Fuego; Conducción en estado de ebriedad; Lesiones Leves por Violencia Familiar",
       "Tenencia Ilegal de armas de fuego;Robo Agravado",
       "Tentativa de Homicidio",
       "Tentativa de Homicidio;Extorsión;Estafa;Lesiones Leves por Violencia Familiar",
