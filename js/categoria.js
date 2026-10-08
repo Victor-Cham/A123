@@ -167,6 +167,7 @@ window.categorias = [
       "Lesiones Leves por Violencia Familiar;Hurto Agravado; Conducción en estado de ebriedad",
       "Lesiones Leves por Violencia Familiar;Hurto Simple",
       "Lesiones Leves por Violencia Familiar;Receptación",
+      "Lesiones Leves por Violencia Familiar;Usurpación",
       "Lesiones Leves por Violencia Familiar;Violación de la Intimidad",
       "Libramientos Indebidos (emitir cheque sin fondos)",
       "Material sin autorización",
