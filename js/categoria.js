@@ -47,6 +47,7 @@ window.categorias = [
       "Conducir en estado de ebriedad; Deserción",
       "Conducción en estado de ebriedad;Estafa",
       "Conducción en estado de ebriedad;Falsedad Ideológica",
+      "Conducción en estado de ebriedad;Lesiones Leves",
       "Conducir en Estado de Ebriedad;Homicidio Calificado",
       "Conducción en estado de ebriedad;Hurto Simple;Violación Sexual",
       "Conducción en estado de ebriedad;Lesiones Leves por Violencia Familiar",
