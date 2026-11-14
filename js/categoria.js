@@ -128,6 +128,7 @@ window.categorias = [
       "Hurto Agravado;Lesiones Leves por Violencia Familiar",
       "Hurto Agravado;Receptación;Estafa",
       "Hurto Simple",
+      "Hurto Simple;Daño Simple",
       "Hurto Simple;Lesiones Leves por Violencia Familiar",
       "Impedimento de Salida del País Caducado por Alimentos",
       "Impedimento de Salida del País por Omisión de Asistencia Familia",
