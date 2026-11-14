@@ -215,6 +215,7 @@ window.categorias = [
       "Robo Agravado;Lesiones Leves por Violencia Familiar",
       "Robo Agravado;Lesiones Culposas",
       "Robo Agravado; Peligro Común",
+      "Robo Agravado;Organización Criminal",
       "Robo Agravado;Terrorismo;Lesiones Leves;Tráfico Ilícito de Drogas",
       "Secuestro",
       "Seducción",
