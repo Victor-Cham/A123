@@ -206,6 +206,7 @@ window.categorias = [
       "Presunta Violación Sexual",
       "Proxenetismo",
       "Receptación",
+      "Receptación; Lesiones Leves por Violencia Familiar",
       "Resistencia a la Autoridad",
       "Reuniones Extra Laborales en contra de MCP",
       "Robo",
